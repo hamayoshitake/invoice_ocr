@@ -1,6 +1,13 @@
 import { InvoiceData, InvoiceDataSchema } from "../schema/InvoiceData";
 import { OpenAI } from 'openai';
+import * as functions from 'firebase-functions';
 
+interface Config {
+  openaiApiKey: string;
+}
+
+const config = functions.config() as Config;
+const openaiApiKey = config.openaiApiKey;
 
 interface ExtractDataParams {
   text: string;
@@ -13,7 +20,7 @@ class InvoiceDataExtractor {
 
   constructor(apiKey: string) {
     this.openai = new OpenAI({
-      apiKey: apiKey
+      apiKey: openaiApiKey
     });
   }
 
@@ -97,7 +104,7 @@ class InvoiceDataExtractor {
           ],
         });
 
-        console.log('openaiResponse: ', response.choices[0].message.content);
+        // console.log('openaiResponse: ', response.choices[0].message.content);
 
         const content = response.choices[0].message.content;
         if (!content) {
@@ -139,7 +146,7 @@ class InvoiceDataExtractor {
 
 export async function processInvoice(ocrResponse: any, payeeCompanyName: string) {
   try {
-    const extractor = new InvoiceDataExtractor(process.env.OPENAI_API_KEY!);
+    const extractor = new InvoiceDataExtractor(openaiApiKey);
     const invoiceData = await extractor.extractData({
       text: ocrResponse.text,
       payeeCompanyName

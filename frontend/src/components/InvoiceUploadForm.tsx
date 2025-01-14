@@ -23,21 +23,25 @@ const InvoiceUploadForm: React.FC = () => {
 
     setLoading(true);
 
-    console.log('payeeCompanyName', payeeCompanyName);
-    console.log('file', file);
+    // console.log('payeeCompanyName', payeeCompanyName);
+    // console.log('selectedFile', file);
     console.log('formData', formData);
 
     try {
-      const response = await axios.post('http://127.0.0.1:5001/invoice-ocr-app-668f6/us-central1/api/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        },
-        responseType: 'blob',
-        timeout: 30000
-      });
-
+      const response = await axios.post(
+        'http://127.0.0.1:5001/invoice-ocr-app-668f6/us-central1/api/upload',
+        formData,
+        {
+          // 'Content-Type': 'multipart/form-data' はブラウザが自動で設定するため削除
+          headers: {
+            'Content-Type': 'multipart/form-data' // ここは不要
+          },
+          responseType: 'blob',
+        }
+      );
+  
       // ダウンロード用のURLを作成
-      const url = window.URL.createObjectURL(new Blob([response.data as BlobPart]));
+      const url = window.URL.createObjectURL(response.data as Blob);
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', 'invoice.csv');
