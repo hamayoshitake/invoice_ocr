@@ -6,7 +6,8 @@ import {processInvoice} from "./service/InvoiceDataExtractor";
 import {getCsvContent} from "./service/CsvGenerator";
 import cors from "cors";
 import busboy from "busboy";
-import {DocumentProcessorServiceClient} from "@google-cloud/documentai";
+import { DocumentProcessorServiceClient } from "@google-cloud/documentai";
+import { https } from "firebase-functions/v2";
 
 interface Config {
   project: { id: string };
@@ -164,5 +165,10 @@ const ensureDirectoryExists = (dirPath: string) => {
   }
 };
 
-// functionsをエクスポートする形式に変更
-export const api = functions.https.onRequest(app);
+export const api = https.onRequest(
+  {
+    timeoutSeconds: 540,
+    memory: "1GiB",
+  },
+  app
+);
