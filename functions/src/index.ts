@@ -6,8 +6,8 @@ import {processInvoice} from "./service/InvoiceDataExtractor";
 import {getCsvContent} from "./service/CsvGenerator";
 import cors from "cors";
 import busboy from "busboy";
-import { DocumentProcessorServiceClient } from "@google-cloud/documentai";
-import { https } from "firebase-functions/v2";
+import {DocumentProcessorServiceClient} from "@google-cloud/documentai";
+import {https} from "firebase-functions/v2";
 
 interface Config {
   project: { id: string };
