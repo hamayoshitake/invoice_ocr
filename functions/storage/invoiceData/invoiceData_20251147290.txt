@@ -1,0 +1,60 @@
+{
+  "payee_company_name": "HamasTechs",
+  "payee_postal_code": "100-0004",
+  "payee_address": "東京都千代田区大手町1-1-1 日生ビル2005号室",
+  "payee_tel": "08010001000",
+  "payee_email": null,
+  "payee_person_name": "山田 三郎",
+  "payer_company_name": "山田自動車株式会社_追加_2御中",
+  "payer_address": "東京都東京都新宿区北新宿1-1-1",
+  "payer_postal_code": "169-0074",
+  "payer_parson_name": "次長",
+  "invoice_date": "2025-01-01",
+  "due_date": "2025-03-11",
+  "invoice_number": "118",
+  "total_amount": 167111,
+  "sub_total_amount": 154733,
+  "total_tax_amount": 12378,
+  "bank_name": "みずほ銀行",
+  "bank_account_name": null,
+  "bank_store_type": "池袋支店(店番号112)",
+  "band_type": "普通預金",
+  "bank_number": "384769",
+  "invoice_details": [
+    {
+      "item_date": "2024-12-14",
+      "item_description": "釘_追加_2_1",
+      "item_amount": 495,
+      "item_quantity": 5,
+      "item_unit_price": 99
+    },
+    {
+      "item_date": "2024-12-16",
+      "item_description": "ねじ_追加_2_2",
+      "item_amount": 3147,
+      "item_quantity": 3,
+      "item_unit_price": 1049
+    },
+    {
+      "item_date": "2024-12-18",
+      "item_description": "ボルト_追加_2_3",
+      "item_amount": 11105,
+      "item_quantity": 7,
+      "item_unit_price": 1586
+    },
+    {
+      "item_date": "2024-12-19",
+      "item_description": "タイヤ_追加_2_4",
+      "item_amount": 2232,
+      "item_quantity": 2,
+      "item_unit_price": 1116
+    },
+    {
+      "item_date": "2024-12-19",
+      "item_description": "ドア_追加_2_5",
+      "item_amount": 22220,
+      "item_quantity": 3,
+      "item_unit_price": 7406.67
+    }
+  ]
+}

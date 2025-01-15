@@ -1,6 +1,13 @@
-import { InvoiceData, InvoiceDataSchema } from "../schema/InvoiceData";
-import { OpenAI } from 'openai';
+import {InvoiceData, InvoiceDataSchema} from "../schema/InvoiceData";
+import {OpenAI} from "openai";
+import * as functions from "firebase-functions";
 
+interface Config {
+  openaiApiKey: string;
+}
+
+const config = functions.config() as Config;
+const openaiApiKey = config.openaiApiKey;
 
 interface ExtractDataParams {
   text: string;
@@ -9,11 +16,11 @@ interface ExtractDataParams {
 
 class InvoiceDataExtractor {
   private openai: OpenAI;
-  private maxRetries: number = 3;
+  private maxRetries = 3;
 
-  constructor(apiKey: string) {
+  constructor() {
     this.openai = new OpenAI({
-      apiKey: apiKey
+      apiKey: openaiApiKey,
     });
   }
 
@@ -88,26 +95,26 @@ class InvoiceDataExtractor {
           messages: [
             {
               role: "system",
-              content: "請求書のテキストからJSON形式で情報を抽出するアシスタントです。"
+              content: "請求書のテキストからJSON形式で情報を抽出するアシスタントです。",
             },
             {
               role: "user",
-              content: this.createPrompt(params)
-            }
+              content: this.createPrompt(params),
+            },
           ],
         });
 
-        console.log('openaiResponse: ', response.choices[0].message.content);
+        // console.log('openaiResponse: ', response.choices[0].message.content);
 
         const content = response.choices[0].message.content;
         if (!content) {
-            throw new Error('LLMからの応答が空です');
+          throw new Error("LLMからの応答が空です");
         }
 
         // JSONの部分だけを抽出
         const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/);
         if (!jsonMatch) {
-            throw new Error('JSON形式のデータが見つかりません');
+          throw new Error("JSON形式のデータが見つかりません");
         }
 
         const jsonString = jsonMatch[1];
@@ -137,17 +144,18 @@ class InvoiceDataExtractor {
   }
 }
 
+// eslint-disable-next-line
 export async function processInvoice(ocrResponse: any, payeeCompanyName: string) {
   try {
-    const extractor = new InvoiceDataExtractor(process.env.OPENAI_API_KEY!);
+    const extractor = new InvoiceDataExtractor();
     const invoiceData = await extractor.extractData({
       text: ocrResponse.text,
-      payeeCompanyName
+      payeeCompanyName,
     });
-    console.log('抽出された請求書データ:', invoiceData);
+    // console.log('抽出された請求書データ:', invoiceData);
     return invoiceData;
   } catch (error) {
-    console.error('請求書の処理中にエラーが発生しました:', error);
+    console.error("請求書の処理中にエラーが発生しました:", error);
     throw error;
   }
 }

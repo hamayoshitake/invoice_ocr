@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import {z} from "zod";
 
 // // 請求書明細項目の型定義
 // interface InvoiceDetail {
@@ -14,30 +14,30 @@ export interface InvoiceData {
   payee_company_name: string;
   payee_postal_code: string;
   payee_address: string;
-  payee_tel?: string;  // オプショナル
-  payee_email?: string;  // オプショナル
-  payee_person_name?: string;  // オプショナル
+  payee_tel?: string; // オプショナル
+  payee_email?: string; // オプショナル
+  payee_person_name?: string; // オプショナル
   payer_company_name: string;
-  payer_address?: string;  // オプショナル
-  payer_postal_code?: string;  // オプショナル
-  payer_person_name?: string;  // オプショナル
-  invoice_date: string;  // 必須
-  due_date: string;  // 必須
-  invoice_number: string;  // 必須
-  total_amount: number;  // 必須
-  sub_total_amount: number;  // 必須
-  total_tax_amount: number;  // 必須
-  bank_name?: string;  // オプショナル
-  bank_account_name?: string;  // オプショナル
-  bank_store_type?: string;  // オプショナル
-  band_type?: string;  // オプショナル
-  bank_number?: string;  // オプショナル
+  payer_address?: string; // オプショナル
+  payer_postal_code?: string; // オプショナル
+  payer_person_name?: string; // オプショナル
+  invoice_date: string; // 必須
+  due_date: string; // 必須
+  invoice_number: string; // 必須
+  total_amount: number; // 必須
+  sub_total_amount: number; // 必須
+  total_tax_amount: number; // 必須
+  bank_name?: string; // オプショナル
+  bank_account_name?: string; // オプショナル
+  bank_store_type?: string; // オプショナル
+  band_type?: string; // オプショナル
+  bank_number?: string; // オプショナル
   invoice_details: {
-    item_date: string;  // 必須
-    item_description: string;  // 必須
-    item_amount: number;  // 必須
-    item_quantity: number;  // 必須
-    item_unit_price: number;  // 必須
+    item_date: string; // 必須
+    item_description: string; // 必須
+    item_amount: number; // 必須
+    item_quantity: number; // 必須
+    item_unit_price: number; // 必須
   }[];
 }
 
@@ -47,7 +47,7 @@ const InvoiceDetailSchema = z.object({
   item_description: z.string().nullable(),
   item_amount: z.number().nullable(),
   item_quantity: z.number().nullable(),
-  item_unit_price: z.number().nullable()
+  item_unit_price: z.number().nullable(),
 });
 
 export const InvoiceDataSchema = z.object({
@@ -72,5 +72,5 @@ export const InvoiceDataSchema = z.object({
   bank_store_type: z.string().nullable().optional(),
   band_type: z.string().nullable().optional(),
   bank_number: z.string().nullable().optional(),
-  invoice_details: z.array(InvoiceDetailSchema)
+  invoice_details: z.array(InvoiceDetailSchema),
 });
