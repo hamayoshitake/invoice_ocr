@@ -22,9 +22,9 @@ const InvoiceUploadForm: React.FC = () => {
     formData.append('payeeCompanyName', payeeCompanyName);
 
     setLoading(true);
-
     try {
       const response = await axios.post(
+        // 'https://us-central1-invoice-ocr-app-668f6.cloudfunctions.net/api/upload',
         'http://127.0.0.1:5001/invoice-ocr-app-668f6/us-central1/api/upload',
         formData,
         {

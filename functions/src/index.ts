@@ -165,10 +165,15 @@ const ensureDirectoryExists = (dirPath: string) => {
   }
 };
 
+// Firebase Functions v2でエクスポート
 export const api = https.onRequest(
   {
-    timeoutSeconds: 540,
-    memory: "1GiB",
+    region: "us-central1", // 必要に応じてリージョンを指定
+    timeoutSeconds: 540, // タイムアウト設定
+    memory: "1GiB", // メモリ設定
+    minInstances: 0, // 最小インスタンス数
+    maxInstances: 10, // 最大インスタンス数
+    concurrency: 80, // 同時実行数
   },
   app
 );
