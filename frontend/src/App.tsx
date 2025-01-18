@@ -4,7 +4,10 @@ import './styles/App.scss';
 import InvoiceUploadForm from './components/InvoiceUploadForm';
 import { getAnalytics } from "firebase/analytics";
 
-if (process.env.REACT_APP_NODE_ENV === 'production') {
+
+const reactAppNodeEnv = import.meta.env.REACT_APP_NODE_ENV
+
+if (reactAppNodeEnv === 'prod') {
   getAnalytics();
 }
 

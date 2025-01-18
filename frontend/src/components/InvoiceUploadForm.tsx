@@ -25,7 +25,7 @@ const InvoiceUploadForm: React.FC = () => {
     try {
       const response = await axios.post(
         // 'https://us-central1-invoice-ocr-app-668f6.cloudfunctions.net/api/upload',
-        'http://127.0.0.1:5001/invoice-ocr-app-668f6/us-central1/api/upload',
+        'http://127.0.0.1:5001/invoice-ocr-app-668f6/us-central1/upload',
         formData,
         {
           headers: {
@@ -34,7 +34,7 @@ const InvoiceUploadForm: React.FC = () => {
           responseType: 'blob',
         }
       );
-  
+
       // ダウンロード用のURLを作成
       const url = window.URL.createObjectURL(response.data as Blob);
       const link = document.createElement('a');

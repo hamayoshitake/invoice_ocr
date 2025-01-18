@@ -1,13 +1,20 @@
 import {InvoiceData, InvoiceDataSchema} from "../schema/InvoiceData";
 import {OpenAI} from "openai";
 import * as functions from "firebase-functions";
+import dotenv from "dotenv";
 
 interface Config {
   openaiApiKey: string;
 }
 
-const config = functions.config() as Config;
-const openaiApiKey = config.openaiApiKey;
+let openaiApiKey: string;
+if (process.env.APP_ENV === "prod") {
+  dotenv.config();
+  openaiApiKey = process.env.OPENAI_API_KEY || "";
+} else {
+  const config = functions.config() as Config;
+  openaiApiKey = config.openaiApiKey;
+}
 
 interface ExtractDataParams {
   text: string;
@@ -104,7 +111,6 @@ class InvoiceDataExtractor {
           ],
         });
 
-        // console.log('openaiResponse: ', response.choices[0].message.content);
 
         const content = response.choices[0].message.content;
         if (!content) {
@@ -152,7 +158,6 @@ export async function processInvoice(ocrResponse: any, payeeCompanyName: string)
       text: ocrResponse.text,
       payeeCompanyName,
     });
-    // console.log('抽出された請求書データ:', invoiceData);
     return invoiceData;
   } catch (error) {
     console.error("請求書の処理中にエラーが発生しました:", error);

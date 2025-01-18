@@ -2,30 +2,30 @@ interface InvoiceData {
   payee_company_name: string;
   payee_postal_code: string;
   payee_address: string;
-  payee_tel?: string; // オプショナル
-  payee_email?: string; // オプショナル
-  payee_person_name?: string; // オプショナル
+  payee_tel?: string;
+  payee_email?: string;
+  payee_person_name?: string;
   payer_company_name: string;
-  payer_address?: string; // オプショナル
-  payer_postal_code?: string; // オプショナル
-  payer_person_name?: string; // オプショナル
-  invoice_date: string; // 必須
-  due_date: string; // 必須
-  invoice_number: string; // 必須
-  total_amount: number; // 必須
-  sub_total_amount: number; // 必須
-  total_tax_amount: number; // 必須
-  bank_name?: string; // オプショナル
-  bank_account_name?: string; // オプショナル
-  bank_store_type?: string; // オプショナル
-  band_type?: string; // オプショナル
-  bank_number?: string; // オプショナル
+  payer_address?: string;
+  payer_postal_code?: string;
+  payer_person_name?: string;
+  invoice_date: string;
+  due_date: string;
+  invoice_number: string;
+  total_amount: number;
+  sub_total_amount: number;
+  total_tax_amount: number;
+  bank_name?: string;
+  bank_account_name?: string;
+  bank_store_type?: string;
+  band_type?: string;
+  bank_number?: string;
   invoice_details: {
-    item_date: string; // 必須
-    item_description: string; // 必須
-    item_amount: number; // 必須
-    item_quantity: number; // 必須
-    item_unit_price: number; // 必須
+    item_date: string;
+    item_description: string;
+    item_amount: number;
+    item_quantity: number;
+    item_unit_price: number;
   }[];
 }
 
