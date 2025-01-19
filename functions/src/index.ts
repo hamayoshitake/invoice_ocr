@@ -15,7 +15,10 @@ const openaiApiKey = defineSecret("OPENAI_API_KEY");
 
 // PDF処理エンドポイント (変更)
 export const upload = https.onRequest({
-  cors: ["http://localhost:5173"],
+  cors: [
+    "http://localhost:5173",
+    "https://invoice-ocr-app-668f6--pr2-feature-api-multer-c-pteqx1xp.web.app",
+  ],
   secrets: [projectOcrId, location, processorOcrId, openaiApiKey],
   invoker: "public",
 }, async (req, res) => {
