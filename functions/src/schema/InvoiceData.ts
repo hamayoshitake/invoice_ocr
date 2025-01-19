@@ -1,14 +1,5 @@
 import {z} from "zod";
 
-// // 請求書明細項目の型定義
-// interface InvoiceDetail {
-//   item_date: string;
-//   item_description: string;
-//   item_amount: number;
-//   item_quantity: number;
-//   item_unit_price: number;
-// }
-
 // メインの請求書データの型定義
 export interface InvoiceData {
   payee_company_name: string;

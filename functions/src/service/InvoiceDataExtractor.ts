@@ -1,20 +1,6 @@
+import {SecretParam} from "firebase-functions/lib/params/types";
 import {InvoiceData, InvoiceDataSchema} from "../schema/InvoiceData";
 import {OpenAI} from "openai";
-import * as functions from "firebase-functions";
-import dotenv from "dotenv";
-
-interface Config {
-  openaiApiKey: string;
-}
-
-let openaiApiKey: string;
-if (process.env.APP_ENV === "prod") {
-  dotenv.config();
-  openaiApiKey = process.env.OPENAI_API_KEY || "";
-} else {
-  const config = functions.config() as Config;
-  openaiApiKey = config.openaiApiKey;
-}
 
 interface ExtractDataParams {
   text: string;
@@ -25,9 +11,9 @@ class InvoiceDataExtractor {
   private openai: OpenAI;
   private maxRetries = 3;
 
-  constructor() {
+  constructor(openaiApiKeyValue: string) {
     this.openai = new OpenAI({
-      apiKey: openaiApiKey,
+      apiKey: openaiApiKeyValue,
     });
   }
 
@@ -151,9 +137,9 @@ class InvoiceDataExtractor {
 }
 
 // eslint-disable-next-line
-export async function processInvoice(ocrResponse: any, payeeCompanyName: string) {
+export async function processInvoice(ocrResponse: any, payeeCompanyName: string, openaiApiKey: SecretParam) {
   try {
-    const extractor = new InvoiceDataExtractor();
+    const extractor = new InvoiceDataExtractor(openaiApiKey.value());
     const invoiceData = await extractor.extractData({
       text: ocrResponse.text,
       payeeCompanyName,
