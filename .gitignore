@@ -70,3 +70,5 @@ node_modules/
 
 # runtimeconfig.json
 functions/.runtimeconfig.json
+
+.DS_Store
