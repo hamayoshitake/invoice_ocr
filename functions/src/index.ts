@@ -1,33 +1,23 @@
-// import * as path from "path";
-// import fs from "fs";
-// import {processInvoice} from "./service/InvoiceDataExtractor";
-// import {getCsvContent} from "./service/CsvGenerator";
-// import busboy from "busboy";
-// import {DocumentProcessorServiceClient} from "@google-cloud/documentai";
 import {https} from "firebase-functions/v2";
-// import {defineSecret} from "firebase-functions/params";
 import {uploadController} from "./controller/InvoiceOcrCsvController";
 import * as admin from "firebase-admin";
 import {secrets} from "./secret";
+import serviceAccount from "./secretKey/invoice-ocr-app-668f6-firebase-adminsdk-8saw5-e731b401ea.json";
+import {uploadCors} from "./cors";
 
-// 環境に応じた初期化
-if (process.env.APP_ENV === 'local') {
-  // ローカル環境用の初期化
-  const serviceAccount = require('../firebase/secretKey/invoice-ocr-app-668f6-firebase-adminsdk-8saw5-e731b401ea.json');
+// 環境に応じた初期化処理
+if (process.env.APP_ENV === "local") {
+  const serviceAccountTyped = serviceAccount as admin.ServiceAccount;
   admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    storageBucket: 'invoice-ocr-app-668f6.firebasestorage.app'
+    credential: admin.credential.cert(serviceAccountTyped),
+    storageBucket: "invoice-ocr-app-668f6.firebasestorage.app",
   });
 } else {
-  // 本番環境用の初期化
   admin.initializeApp();
 }
 
 export const upload = https.onRequest({
-  cors: [
-    "http://localhost:5173/*",
-    "https://invoice-ocr-app-668f6--pr2-feature-api-multer-c-pteqx1xp.web.app/*",
-  ],
+  cors: uploadCors,
   secrets: [
     secrets.projectOcrId,
     secrets.location,

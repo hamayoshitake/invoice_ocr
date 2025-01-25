@@ -4,7 +4,7 @@ import {processInvoiceDataWithLLM} from "../service/InvoiceDataExtractor";
 import {getCsvContent} from "../service/CsvGenerator";
 import busboy from "busboy";
 import {DocumentProcessorServiceClient} from "@google-cloud/documentai";
-import { uploadInvoiceCsvToStorage, getStorageSavedFileUrl } from "../storage";
+import {uploadInvoiceCsvToStorage, getStorageSavedFileUrl} from "../storage";
 import * as admin from "firebase-admin";
 
 interface Secrets {
@@ -16,7 +16,6 @@ interface Secrets {
 
 export const uploadController = {
   async handleUpload(req: Request, res: Response, secrets: Secrets) {
-
     let payeeCompanyName: string | null = null;
     let fileBuffer: Buffer | null = null;
 
@@ -54,7 +53,6 @@ export const uploadController = {
 
     // 全データの処理完了時
     bb.on("finish", async () => {
-
       // バリデーション
       if (!payeeCompanyName) {
         res.status(400).json({
@@ -72,7 +70,7 @@ export const uploadController = {
         return;
       }
 
-      
+
       // Document AIのリクエスト
       const base64File = fileBuffer.toString("base64");
       const request = {
@@ -96,9 +94,9 @@ export const uploadController = {
 
       // ファイル名用のフォーマット（YYYYMMDD_HHmmss）
       const now = jstDate.toISOString()
-        .replace(/[-:]/g, '')  // ハイフンとコロンを削除
-        .replace(/\..+/, '')   // ミリ秒以降を削除
-        .replace('T', '_');    // Tをアンダースコアに置換
+        .replace(/[-:]/g, "") // ハイフンとコロンを削除
+        .replace(/\..+/, "") // ミリ秒以降を削除
+        .replace("T", "_"); // Tをアンダースコアに置換
 
       const csvFileName = `csv/upload/invoice_${now}.csv`;
 
@@ -118,16 +116,14 @@ export const uploadController = {
         // クライアントにCSVのURLを返す
         const url = await getStorageSavedFileUrl(fileName);
         res.json({downloadUrl: url});
-
       } catch (error: any) {
-
         // ファイルが存在したら、削除する
         const bucket = admin.storage().bucket();
         const file = bucket.file(csvFileName);
         const [exists] = await file.exists();
         if (exists) {
           await file.delete().catch((deleteError) => {
-            console.error('Error deleting file:', deleteError);
+            console.error("Error deleting file:", deleteError);
           });
         }
 

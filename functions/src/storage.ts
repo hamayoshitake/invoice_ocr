@@ -1,22 +1,18 @@
 import * as admin from "firebase-admin";
 
 export const uploadInvoiceCsvToStorage = async (fileName: string, fileContent: string): Promise<string> => {
-  try {
-    const bucket = admin.storage().bucket();
-    const fileBuffer = Buffer.from(fileContent);
+  const bucket = admin.storage().bucket();
+  const fileBuffer = Buffer.from(fileContent);
 
-    await bucket.file(fileName).save(fileBuffer, {
-      contentType: "text/csv",
-      metadata: {
-        cacheControl: "no-cache",
-      },
-    });
+  await bucket.file(fileName).save(fileBuffer, {
+    contentType: "text/csv",
+    metadata: {
+      cacheControl: "no-cache",
+    },
+  });
 
-    console.log(`File ${fileName} uploaded successfully`);
-    return fileName;
-  } catch (error) {
-    throw error;
-  }
+  console.log(`File ${fileName} uploaded successfully`);
+  return fileName;
 };
 
 export const getStorageSavedFileUrl = async (fileName: string): Promise<string> => {
