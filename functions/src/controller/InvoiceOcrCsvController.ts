@@ -14,8 +14,8 @@ interface Secrets {
   openaiApiKey: any;
 }
 
-export const uploadController = {
-  async handleUpload(req: Request, res: Response, secrets: Secrets) {
+export const InvoiceOcrCsvController = {
+  async performCsvUpload(req: Request, res: Response, secrets: Secrets) {
     let payeeCompanyName: string | null = null;
     let fileBuffer: Buffer | null = null;
 
@@ -69,7 +69,6 @@ export const uploadController = {
         });
         return;
       }
-
 
       // Document AIのリクエスト
       const base64File = fileBuffer.toString("base64");

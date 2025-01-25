@@ -23,6 +23,7 @@ export interface InvoiceData {
   bank_store_type?: string;
   band_type?: string;
   bank_number?: string;
+  memo?: string;
   invoice_details: {
     item_date: string;
     item_description: string;
@@ -64,4 +65,5 @@ export const InvoiceDataSchema = z.object({
   band_type: z.string().nullable().optional(),
   bank_number: z.string().nullable().optional(),
   invoice_details: z.array(InvoiceDetailSchema),
+  memo: z.string().nullable().optional(),
 });
