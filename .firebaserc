@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "invoice-ocr-app-668f6"
+    "default": "invoice-ocr-app-668f6",
+    "local": "invoice-ocr-app-668f6",
+    "dev": "invoice-ocr-app-668f6",
+    "prod": "invoice-ocr-app-668f6"
   }
 }
