@@ -1,7 +1,7 @@
 
 
-import {ExtractDataParams} from "../type/ExtractDataParams";
-import {BaseInvoiceDataExtractor} from "./abstruct/BaseInvoiceDataExtractor";
+import {ExtractDataParams} from "../types/ExtractDataParams";
+import {BaseInvoiceDataExtractor} from "./abstructs/BaseInvoiceDataExtractor";
 import {SecretParam} from "firebase-functions/lib/params/types";
 
 export class InvoiceDataExtractor extends BaseInvoiceDataExtractor {
@@ -32,7 +32,7 @@ export class InvoiceDataExtractor extends BaseInvoiceDataExtractor {
       - payer_company_name: 請求先会社名/個人名 (必須)
       - payer_address: 請求先住所
       - payer_postal_code: 請求先郵便番号
-      - payer_parson_name: 請求先担当者名
+      - payer_person_name: 請求先担当者名
 
       請求書情報:
       - invoice_date: 請求日
@@ -46,7 +46,7 @@ export class InvoiceDataExtractor extends BaseInvoiceDataExtractor {
       - bank_name: 銀行名
       - bank_account_name: 口座名義
       - bank_store_type: 支店名/本店
-      - band_type: 口座種別（普通預金/当座預金,普通/当座）
+      - bank_type: 口座種別（普通預金/当座預金,普通/当座）
       - bank_number: 口座番号
 
       明細情報 (invoice_details配列):

@@ -18,7 +18,7 @@ interface InvoiceData {
   bank_name?: string;
   bank_account_name?: string;
   bank_store_type?: string;
-  band_type?: string;
+  bank_type?: string;
   bank_number?: string;
   invoice_details: {
     item_date: string;
@@ -78,7 +78,7 @@ export function getCsvContent(invoiceData: InvoiceData): string {
     invoiceData.bank_name || "",
     invoiceData.bank_account_name || "",
     invoiceData.bank_store_type || "",
-    invoiceData.band_type || "",
+    invoiceData.bank_type || "",
     invoiceData.bank_number || "",
     "", // 日付
     "", // 項目

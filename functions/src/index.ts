@@ -1,10 +1,10 @@
 import {https} from "firebase-functions/v2";
-import {InvoiceOcrCsvController} from "./controller/InvoiceOcrCsvController";
+import {InvoiceOcrCsvController} from "./controllers/InvoiceOcrCsvController";
 import * as admin from "firebase-admin";
 import {secrets} from "./secret";
-import serviceAccount from "./secretKey/invoice-ocr-app-668f6-firebase-adminsdk-8saw5-e731b401ea.json";
+import serviceAccount from "./secretKeys/invoice-ocr-app-668f6-firebase-adminsdk-8saw5-e731b401ea.json";
 import {uploadCors} from "./cors";
-import {InvoiceOcrApiController} from "./controller/InvoiceOcrApiController";
+import {InvoiceOcrApiController} from "./controllers/InvoiceOcrApiController";
 
 // 環境に応じた初期化処理
 if (process.env.APP_ENV === "local") {

@@ -1,7 +1,7 @@
 import {Request} from "firebase-functions/v2/https";
 import {Response} from "express";
-import {processInvoiceDataWithLLM} from "../service/InvoiceDataExtractor";
-import {getCsvContent} from "../service/CsvGenerator";
+import {processInvoiceDataWithLLM} from "../services/InvoiceDataExtractor";
+import {getCsvContent} from "../services/CsvGenerator";
 import busboy from "busboy";
 import {DocumentProcessorServiceClient} from "@google-cloud/documentai";
 import {uploadInvoiceCsvToStorage, getStorageSavedFileUrl} from "../storage";

@@ -21,7 +21,7 @@ export interface InvoiceData {
   bank_name?: string;
   bank_account_name?: string;
   bank_store_type?: string;
-  band_type?: string;
+  bank_type?: string;
   bank_number?: string;
   memo?: string;
   invoice_details: {
@@ -52,7 +52,7 @@ export const InvoiceDataSchema = z.object({
   payer_company_name: z.string(),
   payer_address: z.string().nullable().optional(),
   payer_postal_code: z.string().nullable().optional(),
-  payer_parson_name: z.string().nullable().optional(),
+  payer_person_name: z.string().nullable().optional(),
   invoice_date: z.string().nullable().optional(),
   due_date: z.string().nullable().optional(),
   invoice_number: z.string().nullable().optional(),
@@ -62,7 +62,7 @@ export const InvoiceDataSchema = z.object({
   bank_name: z.string().nullable().optional(),
   bank_account_name: z.string().nullable().optional(),
   bank_store_type: z.string().nullable().optional(),
-  band_type: z.string().nullable().optional(),
+  bank_type: z.string().nullable().optional(),
   bank_number: z.string().nullable().optional(),
   invoice_details: z.array(InvoiceDetailSchema),
   memo: z.string().nullable().optional(),

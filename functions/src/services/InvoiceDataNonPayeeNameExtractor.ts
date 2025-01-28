@@ -1,5 +1,5 @@
-import {BaseInvoiceDataExtractor} from "./abstruct/BaseInvoiceDataExtractor";
-import {ExtractDataParams} from "../type/ExtractDataParams";
+import {BaseInvoiceDataExtractor} from "./abstructs/BaseInvoiceDataExtractor";
+import {ExtractDataParams} from "../types/ExtractDataParams";
 import {SecretParam} from "firebase-functions/lib/params/types";
 
 export class InvoiceDataNonPayeeNameExtractor extends BaseInvoiceDataExtractor {
@@ -29,7 +29,7 @@ export class InvoiceDataNonPayeeNameExtractor extends BaseInvoiceDataExtractor {
         - 郵便番号はTは削除して返すこと
         - 銀行名(bank_name)は〇〇銀行まで入れて、支店名まである場合は、支店名は削除する
         - 支店名(bank_store_type)は、銀行名の後ろにある場合は、その支店名を設定する
-        - 口座種別(band_type)は、預金の文字がある場合は、預金の文字は削除する（普通か当座になる）
+        - 口座種別(bank_type)は、預金の文字がある場合は、預金の文字は削除する（普通か当座になる）
 
       3. 判別のプロセス：
         まず、テキスト内の会社情報を特定し、上記の判別基準に基づいて請求元と請求先を分類してください。
@@ -49,7 +49,7 @@ export class InvoiceDataNonPayeeNameExtractor extends BaseInvoiceDataExtractor {
       - payer_company_name: 請求先会社名/個人名 (必須)
       - payer_address: 請求先住所
       - payer_postal_code: 請求先郵便番号
-      - payer_parson_name: 請求先担当者名
+      - payer_person_name: 請求先担当者名
 
       請求書情報:
       - invoice_date: 請求日
@@ -63,7 +63,7 @@ export class InvoiceDataNonPayeeNameExtractor extends BaseInvoiceDataExtractor {
       - bank_name: 銀行名
       - bank_account_name: 口座名義
       - bank_store_type: 支店名/本店
-      - band_type: 口座種別（普通預金/当座預金,普通/当座）
+      - bank_type: 口座種別（普通預金/当座預金,普通/当座）
       - bank_number: 口座番号
 
       明細情報 (invoice_details配列):

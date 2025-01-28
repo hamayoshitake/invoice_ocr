@@ -1,7 +1,7 @@
 import {OpenAI} from "openai";
-import {InvoiceData, InvoiceDataSchema} from "../../schema/InvoiceData";
-import {exportLocalStorageInvoiceData} from "../../service/ExportLocalStorageInvoiceData";
-import {ExtractDataParams} from "../../type/ExtractDataParams";
+import {InvoiceData, InvoiceDataSchema} from "../../schemas/InvoiceData";
+import {exportLocalStorageInvoiceData} from "../ExportLocalStorageInvoiceData";
+import {ExtractDataParams} from "../../types/ExtractDataParams";
 
 // 基底クラスを作成
 export abstract class BaseInvoiceDataExtractor {

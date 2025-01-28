@@ -3,7 +3,7 @@ import path from "path";
 
 export async function exportLocalStorageInvoiceData(data: any, savePath = "invoiceData") {
   // 一時ディレクトリを使用
-  const storagePath = path.join(__dirname, `../../storage/${savePath}`);
+  const storagePath = path.join(__dirname, `../../storages/${savePath}`);
   console.log("Storage path:", storagePath);
 
   // ディレクトリが存在しない場合は作成

@@ -1,9 +1,9 @@
 import {Request} from "firebase-functions/v2/https";
 import {Response} from "express";
-import {processInvoiceDataWithoutPayeeName} from "../service/InvoiceDataNonPayeeNameExtractor";
+import {processInvoiceDataWithoutPayeeName} from "../services/InvoiceDataNonPayeeNameExtractor";
 import busboy from "busboy";
 import {DocumentProcessorServiceClient} from "@google-cloud/documentai";
-import {exportLocalStorageInvoiceData} from "../service/ExportLocalStorageInvoiceData";
+import {exportLocalStorageInvoiceData} from "../services/ExportLocalStorageInvoiceData";
 
 interface Secrets {
   projectOcrId: any;
@@ -17,7 +17,6 @@ export const InvoiceOcrApiController = {
     let fileBuffer: Buffer | null = null;
 
     const bb = busboy({headers: req.headers});
-
 
     bb.on("file", (fieldname, file, {mimeType}) => {
       if (mimeType !== "application/pdf") {
