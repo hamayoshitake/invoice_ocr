@@ -18,7 +18,7 @@ function App() {
     <Router>
       <div className="App">
         <nav className="navbar navbar-expand-lg navbar-light bg-light">
-          <div className="container">
+          <div className="container" style={{ paddingLeft: '60px' , paddingRight: '60px' }}>
             <Link className="navbar-brand" to="/">ホーム</Link>
             <div className="navbar-nav">
               <Link className="nav-link" to="/invoice/csv">請求書csv出力</Link>
