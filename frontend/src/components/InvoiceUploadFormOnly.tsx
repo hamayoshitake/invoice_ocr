@@ -78,6 +78,7 @@ const ImageUploadForm = () => {
 
   useEffect(() => {
     if (invoiceData) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { invoice_details, analysis, ...displayData } = invoiceData.data;
       setGeneralFormData(displayData);
       console.log('invoice_details: ', invoice_details);
