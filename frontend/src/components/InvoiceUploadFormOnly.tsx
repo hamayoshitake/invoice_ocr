@@ -45,13 +45,8 @@ const ImageUploadForm = () => {
       );
 
       const responseInvoiceData = await response.data as InvoiceData;
-      console.log('responseInvoiceData: ', responseInvoiceData);
-
       setInvoiceData(responseInvoiceData);
-
-      console.log('invoiceData: ', invoiceData);
       setMessage({ text: '画像の処理が成功しました', isError: false });
-
     } catch (error) {
       setMessage({
         text: error instanceof Error ? error.message : '画像の処理中にエラーが発生しました',
@@ -78,10 +73,10 @@ const ImageUploadForm = () => {
 
   useEffect(() => {
     if (invoiceData) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // @ts-expect-error
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { invoice_details, analysis, ...displayData } = invoiceData.data;
       setGeneralFormData(displayData);
-      console.log('invoice_details: ', invoice_details);
       setDetailFormData(invoice_details);
     }
   }, [invoiceData]);
