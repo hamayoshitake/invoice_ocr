@@ -18,8 +18,8 @@ export const INVOICE_FIELD_LABELS: Record<keyof Omit<InvoiceData, 'analysis' | '
   sub_total_amount: '小計',
   total_tax_amount: '消費税',
   bank_name: '銀行名',
-  bank_account_name: '支店名',
-  bank_store_type: '口座種別',
+  bank_account_name: 'アカウント名',
+  bank_store_type: '支店名',
   bank_type: '口座区分',
   bank_number: '口座番号',
   memo: '備考'
