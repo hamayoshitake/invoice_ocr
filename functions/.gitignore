@@ -9,6 +9,16 @@ typings/
 node_modules/
 *.local
 
-.DS_Store
 src/.DS_Store
 src/secretKeys/.DS_Store
+
+.env
+.env.dev
+.env.prod
+
+.DS_Store
+
+firebase/
+
+lib/secretKey/*
+src/secretKey/*

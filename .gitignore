@@ -69,3 +69,9 @@ node_modules/
 .dataconnect
 
 .DS_Store
+
+# runtimeconfig.json
+functions/.runtimeconfig.json
+
+
+
