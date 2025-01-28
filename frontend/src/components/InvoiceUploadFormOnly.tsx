@@ -5,6 +5,10 @@ import { InvoiceData, InvoiceDetail } from '../types/InvoiceData';
 import { INVOICE_FIELD_LABELS, DisplayFields } from '../constants/labels/invoiceFieldLabels';
 import { useEffect } from 'react';
 
+type ResponseData = {
+  status: string;
+  data: InvoiceData;
+} 
 
 const ImageUploadForm = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -44,7 +48,8 @@ const ImageUploadForm = () => {
         }
       );
 
-      const responseInvoiceData = await response.data as InvoiceData;
+      const responseData = await response.data as ResponseData;
+      const responseInvoiceData = await responseData.data as InvoiceData;
       setInvoiceData(responseInvoiceData);
       setMessage({ text: '画像の処理が成功しました', isError: false });
     } catch (error) {
@@ -73,9 +78,8 @@ const ImageUploadForm = () => {
 
   useEffect(() => {
     if (invoiceData) {
-      // @ts-expect-error
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { invoice_details, analysis, ...displayData } = invoiceData.data;
+      const { invoice_details, analysis, ...displayData } = invoiceData;
       setGeneralFormData(displayData);
       setDetailFormData(invoice_details);
     }
