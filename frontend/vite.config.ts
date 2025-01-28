@@ -6,5 +6,12 @@ export default defineConfig({
   plugins: [react()],
   define: {
     'process.env': {}
-  }
+  },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        api: 'modern-compiler',
+      },
+    },
+  },
 })
