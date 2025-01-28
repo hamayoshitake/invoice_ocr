@@ -1,0 +1,7 @@
+[
+  {
+    "origin": ["https://invoice-ocr-app-668f6--pr2-feature-api-multer-c-pteqx1xp.web.app", "http://localhost:5173"],
+    "method": ["GET", "POST"],
+    "maxAgeSeconds": 3600
+  }
+]

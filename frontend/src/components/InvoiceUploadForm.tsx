@@ -1,6 +1,9 @@
-// src/components/InvoiceUploadForm.tsx
 import React, { useState } from 'react';
 import axios from 'axios';
+
+interface ApiResponse {
+  downloadUrl: string;
+}
 
 const InvoiceUploadForm: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -23,29 +26,32 @@ const InvoiceUploadForm: React.FC = () => {
 
     setLoading(true);
 
-    console.log('payeeCompanyName', payeeCompanyName);
-    console.log('file', file);
-    console.log('formData', formData);
-
     try {
-      const response = await axios.post('http://127.0.0.1:5001/invoice-ocr-app-668f6/us-central1/api/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        },
-        responseType: 'blob',
-        timeout: 30000
-      });
+      const response = await axios.post<ApiResponse>(
+        // 'https://us-central1-invoice-ocr-app-668f6.cloudfunctions.net/upload',
+        'http://127.0.0.1:5001/invoice-ocr-app-668f6/us-central1/upload',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          },
+          withCredentials: false,
+        }
+      );
 
-      // ダウンロード用のURLを作成
-      const url = window.URL.createObjectURL(new Blob([response.data as BlobPart]));
+      // ダウンロード処理
       const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'invoice.csv');
+      link.href = response.data.downloadUrl;
+      link.setAttribute('download', `invoice_ocr_result.csv`);
       document.body.appendChild(link);
       link.click();
       link.remove();
+
+      alert('ダウンロードが完了しました');
+
     } catch (error) {
       console.error('Error uploading invoice:', error);
+      alert('エラーが発生しました');
     } finally {
       setLoading(false);
     }
