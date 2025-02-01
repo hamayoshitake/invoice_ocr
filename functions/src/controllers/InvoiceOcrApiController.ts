@@ -2,15 +2,9 @@ import {Request} from "firebase-functions/v2/https";
 import {Response} from "express";
 import {processInvoiceDataWithoutPayeeName} from "../services/InvoiceDataNonPayeeNameExtractor";
 import busboy from "busboy";
-import {DocumentProcessorServiceClient} from "@google-cloud/documentai";
 import {exportLocalStorageInvoiceData} from "../services/ExportLocalStorageInvoiceData";
-
-interface Secrets {
-  projectOcrId: any;
-  location: any;
-  processorOcrId: any;
-  openaiApiKey: any;
-}
+import {DocumentAIService} from "../services/DocumentAiService";
+import {Secrets} from "../schemas/secret";
 
 export const InvoiceOcrApiController = {
   async handleInvoiceOcr(req: Request, res: Response, secrets: Secrets) {
@@ -21,11 +15,7 @@ export const InvoiceOcrApiController = {
     bb.on("file", (fieldname, file, {mimeType}) => {
       if (mimeType !== "application/pdf") {
         file.resume();
-        res.status(400).json({
-          error: "Invalid file type",
-          details: {message: "PDFファイルのみ対応しています"},
-        });
-        return;
+        throw new Error("PDFファイルのみ対応しています");
       }
 
       const chunks: Buffer[] = [];
@@ -37,38 +27,25 @@ export const InvoiceOcrApiController = {
 
     bb.on("finish", async () => {
       if (!fileBuffer) {
-        res.status(400).json({
-          error: "Missing required fields",
-          details: {message: "ファイルが必要です"},
-        });
-        return;
+        throw new Error("ファイルが必要です");
       }
 
       try {
+        // Document AIを使用して請求書データを取得
         const base64File = fileBuffer.toString("base64");
-        const request = {
-          name: `projects/${secrets.projectOcrId.value()}/locations/${secrets.location.value()}/processors/${secrets.processorOcrId.value()}`,
-          rawDocument: {
-            content: base64File,
-            mimeType: "application/pdf",
-          },
-        };
+        const documentAIService = new DocumentAIService();
+        const result = await documentAIService.processDocument(base64File, secrets);
 
-        const client = new DocumentProcessorServiceClient();
-        const [result] = await client.processDocument(request);
-
-        if (!result) {
-          res.status(500).json({error: "No Document data from Document AI"});
-          return;
-        }
-
+        // ローカルストレージに請求書データを保存
         exportLocalStorageInvoiceData(result.document);
 
+        // 請求書データをAIで整形
         const invoiceData = await processInvoiceDataWithoutPayeeName(
           result.document,
           secrets.openaiApiKey
         );
 
+        // ローカルストレージにaiで整形したsデータを保存
         exportLocalStorageInvoiceData(invoiceData, "llmData");
 
         res.json({
@@ -77,7 +54,7 @@ export const InvoiceOcrApiController = {
         });
       } catch (error: any) {
         res.status(500).json({
-          error: error instanceof Error ? error.message : "Unknown error",
+          error: error instanceof Error ? error.message : "サーバーエラーが発生しました。",
         });
       }
     });

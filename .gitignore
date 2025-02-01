@@ -73,5 +73,4 @@ node_modules/
 # runtimeconfig.json
 functions/.runtimeconfig.json
 
-
-
+storage.rules

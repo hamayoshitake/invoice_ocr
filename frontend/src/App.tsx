@@ -17,7 +17,7 @@ function App() {
   return (
     <Router>
       <div className="App">
-        <nav className="navbar navbar-expand-lg navbar-light bg-light">
+        <nav className="navbar navbar-expand-lg navbar-light bg-light mb-0">
           <div className="container" style={{ paddingLeft: '60px' , paddingRight: '60px' }}>
             <Link className="navbar-brand" to="/">ホーム</Link>
             <div className="navbar-nav">
@@ -27,7 +27,7 @@ function App() {
           </div>
         </nav>
 
-        <div className="container mt-4">
+        <div className="container">
           <Routes>
             <Route path="/" element={
               <div className="text-center">

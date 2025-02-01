@@ -9,16 +9,10 @@ typings/
 node_modules/
 *.local
 
+.DS_Store
 src/.DS_Store
 src/secretKeys/.DS_Store
 
-.env
-.env.dev
-.env.prod
+src/secretKeys/invoice-ocr-app-668f6-firebase-adminsdk-8saw5-e731b401ea.json
 
-.DS_Store
-
-firebase/
-
-lib/secretKey/*
-src/secretKey/*
+lib/**/secretKeys/
