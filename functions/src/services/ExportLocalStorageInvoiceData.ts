@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import {generateJstTimestamp} from "../Utils/date";
+import {LocalStorageError} from "../errors/CustomErrors";
 
 export async function exportLocalStorageInvoiceData(data: any, savePath = "invoiceData") {
   // 一時ディレクトリを使用
@@ -20,7 +21,6 @@ export async function exportLocalStorageInvoiceData(data: any, savePath = "invoi
     );
     console.log(`savePath saved to: ${invoiceDataFilePath}`);
   } catch (error) {
-    console.error("Error saving Document AI response:", error);
-    throw new Error("サーバーエラーが発生しました。");
+    throw new LocalStorageError(`${savePath}にデータを保存できませんでした。`);
   }
 }

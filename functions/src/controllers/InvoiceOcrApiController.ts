@@ -5,6 +5,9 @@ import busboy from "busboy";
 import {exportLocalStorageInvoiceData} from "../services/ExportLocalStorageInvoiceData";
 import {DocumentAIService} from "../services/DocumentAiService";
 import {Secrets} from "../schemas/secret";
+import {DocumentAIError, ValidationError} from "../errors/CustomErrors";
+import {OpenAIError} from "openai";
+
 
 export const InvoiceOcrApiController = {
   async handleInvoiceOcr(req: Request, res: Response, secrets: Secrets) {
@@ -15,7 +18,7 @@ export const InvoiceOcrApiController = {
     bb.on("file", (fieldname, file, {mimeType}) => {
       if (mimeType !== "application/pdf") {
         file.resume();
-        throw new Error("PDFファイルのみ対応しています");
+        throw new ValidationError("PDFファイルのみ対応しています");
       }
 
       const chunks: Buffer[] = [];
@@ -27,7 +30,7 @@ export const InvoiceOcrApiController = {
 
     bb.on("finish", async () => {
       if (!fileBuffer) {
-        throw new Error("ファイルが必要です");
+        throw new ValidationError("ファイルが必要です");
       }
 
       try {
@@ -53,8 +56,32 @@ export const InvoiceOcrApiController = {
           data: invoiceData,
         });
       } catch (error: any) {
+        console.error("Error details:", error);
+
+        if (error instanceof ValidationError) {
+          res.status(400).json({
+            status: "error",
+            code: "VALIDATION_ERROR",
+            message: error.message,
+          });
+        } else if (error instanceof OpenAIError) {
+          res.status(422).json({
+            status: "error",
+            code: "DOCUMENT_PROCESSING_ERROR",
+            message: "一時的なエラーが発生しました。時間をおいて再度お試しください",
+          });
+        } else if (error instanceof DocumentAIError) {
+          res.status(422).json({
+            status: "error",
+            code: "DOCUMENT_PROCESSING_ERROR",
+            message: error.message,
+          });
+        }
+
         res.status(500).json({
-          error: error instanceof Error ? error.message : "サーバーエラーが発生しました。",
+          status: "error",
+          code: "INTERNAL_SERVER_ERROR",
+          message: "サーバー内部でエラーが発生しました",
         });
       }
     });

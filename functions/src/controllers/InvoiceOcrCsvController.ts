@@ -8,6 +8,9 @@ import {DocumentAIService} from "../services/DocumentAiService";
 import * as admin from "firebase-admin";
 import {generateJstTimestamp} from "../Utils/date";
 import {Secrets} from "../schemas/secret";
+import {CsvConversionError, DocumentAIError, GcsStorageGetSignedUrlError, GcsStorageSaveError, ValidationError} from "../errors/CustomErrors";
+import {OpenAIError} from "openai";
+
 
 export const InvoiceOcrCsvController = {
   async performCsvUpload(req: Request, res: Response, secrets: Secrets) {
@@ -19,7 +22,7 @@ export const InvoiceOcrCsvController = {
     bb.on("file", (fieldname, file, {mimeType}) => {
       if (mimeType !== "application/pdf") {
         file.resume();
-        throw new Error("PDFファイルのみ対応しています");
+        throw new ValidationError("PDFファイルのみ対応しています");
       }
 
       const chunks: Buffer[] = [];
@@ -31,7 +34,7 @@ export const InvoiceOcrCsvController = {
 
     bb.on("finish", async () => {
       if (!fileBuffer) {
-        throw new Error("ファイルが必要です");
+        throw new ValidationError("ファイルが必要です");
       }
 
       const csvFileName = `csv/upload/invoice_${generateJstTimestamp()}.csv`;
@@ -49,7 +52,7 @@ export const InvoiceOcrCsvController = {
         // CSV用のデータを作成
         const csvContent = getCsvContent(invoiceData);
         if (csvContent[0] === "") {
-          throw new Error();
+          throw new CsvConversionError();
         }
 
         // GCSにCSV形式で保存
@@ -69,8 +72,37 @@ export const InvoiceOcrCsvController = {
           });
         }
 
+        console.error("Error details:", error);
+
+        if (error instanceof ValidationError) {
+          res.status(400).json({
+            status: "error",
+            code: "VALIDATION_ERROR",
+            message: error.message || "入力内容を確認してください",
+          });
+        } else if (error instanceof OpenAIError) {
+          res.status(422).json({
+            status: "error",
+            code: "DOCUMENT_PROCESSING_ERROR",
+            message: "一時的なエラーが発生しました。時間をおいて再度お試しください",
+          });
+        } else if (
+          error instanceof DocumentAIError ||
+          error instanceof GcsStorageSaveError ||
+          error instanceof GcsStorageGetSignedUrlError ||
+          error instanceof CsvConversionError
+        ) {
+          res.status(422).json({
+            status: "error",
+            code: "DOCUMENT_PROCESSING_ERROR",
+            message: error.message,
+          });
+        }
+
         res.status(500).json({
-          error: error instanceof Error ? error.message : "CSVデータの作成に失敗しました",
+          status: "error",
+          code: "INTERNAL_SERVER_ERROR",
+          message: "サーバー内部でエラーが発生しました",
         });
       }
     });

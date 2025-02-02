@@ -8,6 +8,7 @@ interface ApiResponse {
 const InvoiceUploadForm: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -17,7 +18,10 @@ const InvoiceUploadForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!file) return;
+    if (!file) {
+      setMessage({ text: 'ファイルを選択してください', isError: true });
+      return;
+    }
 
     const formData = new FormData();
     formData.append('file', file);
@@ -45,11 +49,10 @@ const InvoiceUploadForm: React.FC = () => {
       link.click();
       link.remove();
 
-      alert('ダウンロードが完了しました');
-
-    } catch (error) {
+      setMessage({ text: 'ダウンロードが完了しました', isError: false });
+    } catch (error: any) {
       console.error(error);
-      alert('エラーが発生しました');
+      setMessage({ text: error.response?.data?.message || 'エラーが発生しました', isError: true });
     } finally {
       setLoading(false);
     }
@@ -58,6 +61,11 @@ const InvoiceUploadForm: React.FC = () => {
   return (
     <div className="container">
       <h2 className="mb-3">請求書アップロード</h2>
+      {message && (
+        <div className={`alert ${message.isError ? 'alert-danger' : 'alert-success'} mt-3`}>
+          {message.text}
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <input

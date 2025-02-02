@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 type ResponseData = {
   status: string;
   data: InvoiceData;
-} 
+}
 
 const ImageUploadForm = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -52,9 +52,10 @@ const ImageUploadForm = () => {
       const responseInvoiceData = await responseData.data as InvoiceData;
       setInvoiceData(responseInvoiceData);
       setMessage({ text: '画像の処理が成功しました', isError: false });
-    } catch (error) {
+    } catch (error: any) {
+      console.error(error);
       setMessage({
-        text: error instanceof Error ? error.message : '画像の処理中にエラーが発生しました',
+        text: error.response?.data?.message || '画像の処理中にエラーが発生しました',
         isError: true
       });
     } finally {
