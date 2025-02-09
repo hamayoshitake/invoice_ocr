@@ -10,7 +10,7 @@ import {OpenAIError} from "openai";
 
 
 export const InvoiceOcrApiController = {
-  async handleInvoiceOcr(req: Request, res: Response, secrets: Secrets) {
+  async performInvoiceOcr(req: Request, res: Response, secrets: Secrets) {
     let fileBuffer: Buffer | null = null;
 
     const bb = busboy({headers: req.headers});
@@ -51,7 +51,7 @@ export const InvoiceOcrApiController = {
         // ローカルストレージにaiで整形したsデータを保存
         exportLocalStorageInvoiceData(invoiceData, "llmData");
 
-        res.json({
+        return res.status(200).json({
           status: "success",
           data: invoiceData,
         });
@@ -59,26 +59,26 @@ export const InvoiceOcrApiController = {
         console.error("Error details:", error);
 
         if (error instanceof ValidationError) {
-          res.status(400).json({
+          return res.status(400).json({
             status: "error",
             code: "VALIDATION_ERROR",
             message: error.message,
           });
         } else if (error instanceof OpenAIError) {
-          res.status(422).json({
+          return res.status(422).json({
             status: "error",
             code: "DOCUMENT_PROCESSING_ERROR",
             message: "一時的なエラーが発生しました。時間をおいて再度お試しください",
           });
         } else if (error instanceof DocumentAIError) {
-          res.status(422).json({
+          return res.status(422).json({
             status: "error",
             code: "DOCUMENT_PROCESSING_ERROR",
             message: error.message,
           });
         }
 
-        res.status(500).json({
+        return res.status(500).json({
           status: "error",
           code: "INTERNAL_SERVER_ERROR",
           message: "サーバー内部でエラーが発生しました",
@@ -88,7 +88,7 @@ export const InvoiceOcrApiController = {
 
     bb.on("error", (error) => {
       console.error("Busboy error:", error);
-      res.status(500).json({error: "File processing error"});
+      return res.status(500).json({error: "File processing error"});
     });
 
     bb.end(req.body);

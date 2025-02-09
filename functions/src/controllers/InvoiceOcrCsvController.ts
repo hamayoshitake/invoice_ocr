@@ -11,9 +11,8 @@ import {Secrets} from "../schemas/secret";
 import {CsvConversionError, DocumentAIError, GcsStorageGetSignedUrlError, GcsStorageSaveError, ValidationError} from "../errors/CustomErrors";
 import {OpenAIError} from "openai";
 
-
 export const InvoiceOcrCsvController = {
-  async performCsvUpload(req: Request, res: Response, secrets: Secrets) {
+  async performCsvDownload(req: Request, res: Response, secrets: Secrets) {
     let fileBuffer: Buffer | null = null;
 
     // Busboyインスタンス
@@ -60,7 +59,7 @@ export const InvoiceOcrCsvController = {
 
         // クライアントにCSVのURLを返す
         const url = await getStorageSavedFileUrl(fileName);
-        res.json({downloadUrl: url});
+        return res.status(200).json({downloadUrl: url});
       } catch (error: any) {
         // ファイルが存在したら、削除する
         const bucket = admin.storage().bucket();
@@ -75,13 +74,13 @@ export const InvoiceOcrCsvController = {
         console.error("Error details:", error);
 
         if (error instanceof ValidationError) {
-          res.status(400).json({
+          return res.status(400).json({
             status: "error",
             code: "VALIDATION_ERROR",
             message: error.message || "入力内容を確認してください",
           });
         } else if (error instanceof OpenAIError) {
-          res.status(422).json({
+          return res.status(422).json({
             status: "error",
             code: "DOCUMENT_PROCESSING_ERROR",
             message: "一時的なエラーが発生しました。時間をおいて再度お試しください",
@@ -92,14 +91,14 @@ export const InvoiceOcrCsvController = {
           error instanceof GcsStorageGetSignedUrlError ||
           error instanceof CsvConversionError
         ) {
-          res.status(422).json({
+          return res.status(422).json({
             status: "error",
             code: "DOCUMENT_PROCESSING_ERROR",
             message: error.message,
           });
         }
 
-        res.status(500).json({
+        return res.status(500).json({
           status: "error",
           code: "INTERNAL_SERVER_ERROR",
           message: "サーバー内部でエラーが発生しました",
@@ -110,7 +109,7 @@ export const InvoiceOcrCsvController = {
     // エラーハンドリング
     bb.on("error", (error) => {
       console.error("Busboy error:", error);
-      res.status(500).json({error: "File processing error"});
+      return res.status(500).json({error: "File processing error"});
     });
 
     bb.end(req.body);

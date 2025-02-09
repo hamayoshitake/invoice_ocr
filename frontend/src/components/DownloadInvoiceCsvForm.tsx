@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import '../styles/component/DownloadInvoiceCsvForm.scss';
 
 interface ApiResponse {
   downloadUrl: string;
 }
 
-const InvoiceUploadForm: React.FC = () => {
+const DownloadInvoiceCsvForm: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
@@ -14,6 +15,10 @@ const InvoiceUploadForm: React.FC = () => {
     if (e.target.files) {
       setFile(e.target.files[0]);
     }
+  };
+
+  const handleMessageClick = () => {
+    setMessage(null);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -31,11 +36,12 @@ const InvoiceUploadForm: React.FC = () => {
     try {
       const response = await axios.post<ApiResponse>(
         'https://us-central1-invoice-ocr-app-668f6.cloudfunctions.net/upload',
-        // 'http://127.0.0.1:5001/invoice-ocr-app-668f6/us-central1/upload',
+        // 'http://127.0.0.1:5001/invoice-ocr-app-668f6/us-central1/api/csv/download',
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data'
+            'Content-Type': 'multipart/form-data',
+            'x-api-key': '7e6ed69712332a8bd4ca41b69353491c93a7f4fbf3184fec19ac1d6801d2fa9e',
           },
           withCredentials: false,
         }
@@ -59,34 +65,59 @@ const InvoiceUploadForm: React.FC = () => {
   };
 
   return (
-    <div className="container">
-      <h2 className="mb-3">請求書アップロード</h2>
+    <div className="image-upload-container pt-0">
+      <h2>請求書データCSVダウンロード</h2>
       {message && (
-        <div className={`alert ${message.isError ? 'alert-danger' : 'alert-success'} mt-3`}>
+        <div className={`alert ${message.isError ? 'alert-danger' : 'alert-success'} mt-3`}
+        onClick={handleMessageClick}
+        >
           {message.text}
         </div>
       )}
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <input
-            type="file"
-            className="form-control"
-            id="file"
-            onChange={handleFileChange}
-            required
-          />
+
+      <div className="content-wrapper">
+        {/* PDFビューア */}
+        <div className="pdf-viewer">
+            <div className="upload-section">
+              <form onSubmit={handleSubmit}>
+                <input
+                  type="file"
+                  className="form-control"
+                  onChange={handleFileChange}
+                  accept=".pdf"
+                  />
+                <button
+                  type="submit"
+                  className="btn btn-primary mt-2"
+                  disabled={loading || !file}
+                >
+                  {loading ? '処理中...' : 'アップロード'}
+                </button>
+              </form>
+            </div>
+            {file && (
+              <div className="pdf-container">
+                <object
+                  data={URL.createObjectURL(file)}
+                  type="application/pdf"
+                  width="100%"
+                  height="100%"
+                >
+                  <p>PDFを表示できません。</p>
+                </object>
+              </div>
+            )}
         </div>
-        <button type="submit" className="btn btn-primary">アップロード</button>
-      </form>
+      </div>
       {loading && (
         <div className="loading-overlay">
-          <div className="spinner-border" role="status">
+          <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
         </div>
-      )}
-    </div>
+        )}
+  </div>
   );
 };
 
-export default InvoiceUploadForm;
+export default DownloadInvoiceCsvForm;

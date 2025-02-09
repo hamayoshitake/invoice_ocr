@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
-import '../styles/component/InvoiceUploadFormOnly.scss';
+import '../styles/component/GetInvoiceDataApiForm.scss';
 import { InvoiceData, InvoiceDetail } from '../types/InvoiceData';
 import { INVOICE_FIELD_LABELS, DisplayFields } from '../constants/labels/invoiceFieldLabels';
 import { useEffect } from 'react';
@@ -10,7 +10,7 @@ type ResponseData = {
   data: InvoiceData;
 }
 
-const ImageUploadForm = () => {
+const GetInvoiceDataApiForm = () => {
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,12 +37,13 @@ const ImageUploadForm = () => {
 
     try {
       const response = await axios.post(
-        'https://us-central1-invoice-ocr-app-668f6.cloudfunctions.net/api/ocr/invoice',
-        // 'http://127.0.0.1:5001/invoice-ocr-app-668f6/us-central1/api/ocr/invoice',
+        // 'https://us-central1-invoice-ocr-app-668f6.cloudfunctions.net/api/ocr/invoice',
+        'http://127.0.0.1:5001/invoice-ocr-app-668f6/us-central1/api/invoice',
         formData,
         {
           headers: {
-            'Content-Type': 'application/pdf'
+            'Content-Type': 'application/pdf',
+            'x-api-key': '7e6ed69712332a8bd4ca41b69353491c93a7f4fbf3184fec19ac1d6801d2fa9e'
           },
           withCredentials: false,
         }
@@ -86,8 +87,12 @@ const ImageUploadForm = () => {
     }
   }, [invoiceData]);
 
+  useEffect(() => {
+    setMessage(null);
+  }, []);
+
   return (
-    <div className="image-upload-container">
+    <div className="image-upload-container pt-0">
       <h2>請求書OCRテスト</h2>
 
       {message && (
@@ -104,7 +109,7 @@ const ImageUploadForm = () => {
               <div className="form-group">
                 <input
                   type="file"
-                  accept="application/pdf"
+                  accept=".pdf"
                   onChange={handleFileChange}
                   className="form-control"
                 />
@@ -239,4 +244,4 @@ const ImageUploadForm = () => {
   );
 };
 
-export default ImageUploadForm;
+export default GetInvoiceDataApiForm;

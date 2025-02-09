@@ -74,3 +74,5 @@ node_modules/
 functions/.runtimeconfig.json
 
 storage.rules
+
+/emulator-data
