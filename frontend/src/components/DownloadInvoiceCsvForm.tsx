@@ -35,13 +35,12 @@ const DownloadInvoiceCsvForm: React.FC = () => {
 
     try {
       const response = await axios.post<ApiResponse>(
-        'https://us-central1-invoice-ocr-app-668f6.cloudfunctions.net/upload',
-        // 'http://127.0.0.1:5001/invoice-ocr-app-668f6/us-central1/api/csv/download',
+        `${import.meta.env.VITE_APP_API_URL}/api/csv/download`,
         formData,
         {
           headers: {
             'Content-Type': 'multipart/form-data',
-            'x-api-key': '7e6ed69712332a8bd4ca41b69353491c93a7f4fbf3184fec19ac1d6801d2fa9e',
+            'x-api-key': import.meta.env.VITE_APP_API_KEY,
           },
           withCredentials: false,
         }
@@ -65,8 +64,8 @@ const DownloadInvoiceCsvForm: React.FC = () => {
   };
 
   return (
-    <div className="image-upload-container pt-0">
-      <h2>請求書データCSVダウンロード</h2>
+    <div className="image-upload-container">
+      <h3>請求書データCSVダウンロード</h3>
       {message && (
         <div className={`alert ${message.isError ? 'alert-danger' : 'alert-success'} mt-3`}
         onClick={handleMessageClick}

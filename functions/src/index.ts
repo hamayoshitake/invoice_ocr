@@ -1,4 +1,4 @@
-import {https} from "firebase-functions/v2";
+import {https, setGlobalOptions} from "firebase-functions/v2";
 import {InvoiceOcrCsvController} from "./controllers/InvoiceOcrCsvController";
 import * as admin from "firebase-admin";
 import {secrets} from "./secret";
@@ -8,6 +8,9 @@ import {validateApiKey} from "./middleware/apiKeyAuth";
 import {logApiAccess} from "./services/operation/ApiLogger";
 import {ApiKeyCreateContoroller} from "./controllers/ApiKeyCreateContoroller";
 
+setGlobalOptions({
+  region: "asia-northeast1",
+});
 
 // 環境に応じた初期化処理
 if (process.env.FUNCTIONS_EMULATOR) {
@@ -20,7 +23,6 @@ if (process.env.FUNCTIONS_EMULATOR) {
 } else {
   admin.initializeApp();
 }
-
 
 export const api = https.onRequest({
   cors: true,

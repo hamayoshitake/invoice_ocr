@@ -1,7 +1,6 @@
-import * as admin from "firebase-admin";
 import {Request} from "firebase-functions/v2/https";
 import {Response} from "express";
-import {FieldValue} from "firebase-admin/firestore";
+import {getFirestore, Timestamp} from "firebase-admin/firestore";
 
 interface ApiLogData {
   apiKey: string;
@@ -9,8 +8,8 @@ interface ApiLogData {
   method: string;
   requestBody: any;
   responseStatus: number;
-  processingTime: number;
-  timestamp: Date;
+  processingTime: Timestamp;
+  timestamp: Timestamp;
   ipAddress: string;
 }
 
@@ -21,17 +20,18 @@ export const logApiAccess = async (req: Request, res: Response, startTime: numbe
     method: req.method,
     requestBody: req.body,
     responseStatus: res.statusCode,
-    processingTime: Date.now() - startTime,
-    timestamp: new Date(),
+    processingTime: Timestamp.fromMillis(Date.now() - startTime),
+    timestamp: Timestamp.now(),
     ipAddress: req.ip || "unknown",
   };
 
   try {
-    await admin.firestore()
+    await getFirestore()
       .collection("api_logs")
-      .add({
+      .doc("version1")
+      .set({
         ...logData,
-        createdAt: FieldValue.serverTimestamp(),
+        createdAt: Timestamp.now(),
       });
   } catch (error) {
     console.error("APIログ保存エラー:", error);

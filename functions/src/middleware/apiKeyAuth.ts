@@ -1,7 +1,8 @@
 import {Request} from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import {Response} from "express";
-import {FieldValue} from "firebase-admin/firestore";
+import {getFirestore, Timestamp} from "firebase-admin/firestore";
+
 
 interface ApiKeyData {
   apiKey: string;
@@ -12,7 +13,7 @@ interface ApiKeyData {
 }
 
 export const createKey = async (apiKey: string) => {
-  const db = admin.firestore();
+  const db = getFirestore();
 
   // 90日後の日時を計算
   const expiresAt = new Date();
@@ -27,10 +28,10 @@ export const createKey = async (apiKey: string) => {
 
   await db
     .collection("api_keys")
-    .doc(apiKey)
+    .doc("version1")
     .set({
       ...apiKeyData,
-      createdAt: FieldValue.serverTimestamp(),
+      createdAt: Timestamp.now(),
     });
 
   return apiKeyData;
@@ -50,7 +51,7 @@ export const validateApiKey = async (req: Request, res: Response, next: () => vo
   try {
     const doc = await admin.firestore()
       .collection("api_keys")
-      .doc(apiKey)
+      .doc("version1")
       .get();
 
     if (!doc.exists) {
@@ -81,7 +82,7 @@ export const validateApiKey = async (req: Request, res: Response, next: () => vo
 
     // 最終使用日時を更新
     await doc.ref.update({
-      lastUsed: FieldValue.serverTimestamp(),
+      lastUsed: Timestamp.now(),
     });
 
     return next();
