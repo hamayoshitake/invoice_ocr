@@ -21,6 +21,16 @@ jobs:
           VITE_APP_API_URL=${{ secrets.VITE_APP_API_URL }}
           EOF
 
+      # ビルド時の環境変数確認
+      - name: Build with debug
+        working-directory: ./frontend
+        run: |
+          echo "Build environment variables:"
+          echo "VITE_APP_API_KEY exists: ${{ env.VITE_APP_API_KEY != '' }}"
+        env:
+          VITE_APP_API_KEY: ${{ secrets.VITE_APP_API_KEY }}
+          VITE_APP_API_URL: ${{ secrets.VITE_APP_API_URL }}
+
       - name: Install dependencies and build
         working-directory: ./frontend
         run: npm ci && npm run build
