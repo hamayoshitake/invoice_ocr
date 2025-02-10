@@ -13,6 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Create env file
+        working-directory: ./frontend
+        run: |
+          echo "VITE_APP_API_KEY=${{ secrets.VITE_APP_API_KEY }}" > .env.production
+          echo "VITE_APP_API_URL=${{ secrets.VITE_APP_API_URL }}" >> .env.production
+
       - name: Install dependencies and build
         working-directory: ./frontend
         run: npm ci && npm run build
