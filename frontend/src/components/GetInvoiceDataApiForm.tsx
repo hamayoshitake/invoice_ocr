@@ -35,6 +35,8 @@ const GetInvoiceDataApiForm = () => {
     const formData = new FormData();
     formData.append('file', file);
 
+    console.log(import.meta.env.VITE_PROD_APP_API_URL);
+
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_PROD_APP_API_URL}/api/invoice`,
