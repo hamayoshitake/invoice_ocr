@@ -35,16 +35,16 @@ const GetInvoiceDataApiForm = () => {
     const formData = new FormData();
     formData.append('file', file);
 
-    console.log(import.meta.env.VITE_PROD_APP_API_URL);
+    console.log(import.meta.env.VITE_APP_API_URL);
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_PROD_APP_API_URL}/api/invoice`,
+        `${import.meta.env.VITE_APP_API_URL}/api/invoice`,
         formData,
         {
           headers: {
             'Content-Type': 'application/pdf',
-            'x-api-key': import.meta.env.VITE_PROD_APP_API_KEY
+            'x-api-key': import.meta.env.VITE_APP_API_KEY
           },
           withCredentials: false,
         }
