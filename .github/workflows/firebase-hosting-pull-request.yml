@@ -15,17 +15,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      # 環境変数の確認
-      - name: Debug Environment Variables
-        working-directory: ./frontend
-        shell: bash
-        run: |
-          echo "Checking secrets..."
-          if [ -n "${{ secrets.VITE_APP_API_KEY }}" ]; then
-            echo "VITE_APP_API_KEY is set"
-          else
-            echo "VITE_APP_API_KEY is NOT set"
-          fi
 
       # .envファイルの作成
       - name: Create env file
@@ -34,17 +23,10 @@ jobs:
         run: |
           echo "VITE_APP_API_KEY='${{ secrets.VITE_APP_API_KEY }}'" > .env
           echo "VITE_APP_API_URL='${{ secrets.VITE_APP_API_URL }}'" >> .env
-          
+
           # .envファイルが作成されたか確認（機密情報は表示しない）
           echo "Created .env file with following keys:"
           cat .env | cut -d= -f1
-
-      - name: Debug env
-        working-directory: ./frontend
-        shell: bash
-        run: |
-          echo "VITE_APP_API_KEY: ${{ env.VITE_APP_API_KEY }}"
-          echo "VITE_APP_API_URL: ${{ env.VITE_APP_API_URL }}"
 
       - name: Install dependencies and build
         working-directory: ./frontend
