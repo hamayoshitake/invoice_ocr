@@ -22,8 +22,8 @@ export abstract class BaseInvoiceDataExtractor {
     while (attempts < this.maxRetries) {
       try {
         const response = await this.openai.chat.completions.create({
-          model: "gpt-4-0125-preview",
-          temperature: 0.1,
+          model: "gpt-4o",
+          temperature: 0.1, // 一貫性のある応答を生成するため
           messages: [
             {
               role: "system",

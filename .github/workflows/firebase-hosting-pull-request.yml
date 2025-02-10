@@ -11,8 +11,23 @@ jobs:
   build_and_preview:
     if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
+    environment: production
+
     steps:
       - uses: actions/checkout@v4
+
+      # .envファイルの作成
+      - name: Create env file
+        working-directory: ./frontend
+        shell: bash
+        run: |
+          echo "VITE_APP_API_KEY='${{ secrets.VITE_APP_API_KEY }}'" > .env
+          echo "VITE_APP_API_URL='${{ secrets.VITE_APP_API_URL }}'" >> .env
+
+          # .envファイルが作成されたか確認（機密情報は表示しない）
+          echo "Created .env file with following keys:"
+          cat .env | cut -d= -f1
+
       - name: Install dependencies and build
         working-directory: ./frontend
         run: npm ci && npm run build

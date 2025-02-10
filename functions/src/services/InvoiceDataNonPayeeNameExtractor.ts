@@ -1,6 +1,7 @@
 import {BaseInvoiceDataExtractor} from "./abstructs/BaseInvoiceDataExtractor";
 import {ExtractDataParams} from "../types/ExtractDataParams";
 import {SecretParam} from "firebase-functions/lib/params/types";
+import {OpenAIError} from "openai";
 
 export class InvoiceDataNonPayeeNameExtractor extends BaseInvoiceDataExtractor {
   protected createPrompt(params: ExtractDataParams): string {
@@ -101,8 +102,12 @@ export async function processInvoiceDataWithoutPayeeName(
   ocrResponse: any,
   openaiApiKey: SecretParam
 ) {
-  const extractor = new InvoiceDataNonPayeeNameExtractor(openaiApiKey.value());
-  return await extractor.extractData({
-    text: ocrResponse.text,
-  });
+  try {
+    const extractor = new InvoiceDataNonPayeeNameExtractor(openaiApiKey.value());
+    return await extractor.extractData({
+      text: ocrResponse.text,
+    });
+  } catch (error) {
+    throw new OpenAIError("請求書データをAIで整形できませんでした");
+  }
 }

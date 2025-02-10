@@ -1,0 +1,36 @@
+.image-upload-container {
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  .content-wrapper {
+    flex: 1;
+    display: flex;
+    gap: 20px;
+    overflow: hidden;
+    
+    .pdf-viewer {
+      flex: 1;
+      border: 1px solid #ddd;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      
+      .upload-section {
+        margin-bottom: 10px;
+      }
+      
+      .pdf-container {
+        flex: 1;
+        border: 1px solid #eee;
+        overflow: auto;
+        
+        object {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
