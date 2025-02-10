@@ -11,6 +11,11 @@ jobs:
   build_and_preview:
     if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
+    env:
+      VITE_APP_API_KEY: ${{ secrets.VITE_APP_API_KEY }}
+      VITE_APP_API_URL: ${{ secrets.VITE_APP_API_URL }}
+
+    
     steps:
       - uses: actions/checkout@v4
       - name: Create env file
@@ -21,12 +26,20 @@ jobs:
           VITE_APP_API_URL=${{ secrets.VITE_APP_API_URL }}
           EOF
 
+      # 環境変数の確認（セキュアな方法で）
+      - name: Debug Environment Variables
+        working-directory: ./frontend
+        run: |
+          echo "Checking environment variables..."
+          echo "VITE_APP_API_KEY exists: ${{ env.VITE_APP_API_KEY != '' }}"
+          echo "VITE_API_URL exists: ${{ env.VITE_API_URL != '' }}"
+
       # ビルド時の環境変数確認
       - name: Build with debug
         working-directory: ./frontend
         run: |
           echo "Build environment variables:"
-          echo "VITE_APP_API_KEY exists: ${{ env.VITE_APP_API_KEY != '' }}"
+            echo "VITE_APP_API_KEY exists: ${{ env.VITE_APP_API_KEY != '' }}"
         env:
           VITE_APP_API_KEY: ${{ secrets.VITE_APP_API_KEY }}
           VITE_APP_API_URL: ${{ secrets.VITE_APP_API_URL }}
