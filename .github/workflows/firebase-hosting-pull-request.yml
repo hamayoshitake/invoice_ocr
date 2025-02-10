@@ -11,38 +11,40 @@ jobs:
   build_and_preview:
     if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
-    env:
-      VITE_APP_API_KEY: ${{ secrets.VITE_APP_API_KEY }}
-      VITE_APP_API_URL: ${{ secrets.VITE_APP_API_URL }}
+    environment: production
 
-    
     steps:
       - uses: actions/checkout@v4
-      - name: Create env file
-        working-directory: ./frontend
-        run: |
-          cat << EOF > .env
-          VITE_APP_API_KEY=${{ secrets.VITE_APP_API_KEY }}
-          VITE_APP_API_URL=${{ secrets.VITE_APP_API_URL }}
-          EOF
-
-      # 環境変数の確認（セキュアな方法で）
+      # 環境変数の確認
       - name: Debug Environment Variables
         working-directory: ./frontend
+        shell: bash
         run: |
-          echo "Checking environment variables..."
-          echo "VITE_APP_API_KEY exists: ${{ env.VITE_APP_API_KEY != '' }}"
-          echo "VITE_API_URL exists: ${{ env.VITE_API_URL != '' }}"
+          echo "Checking secrets..."
+          if [ -n "${{ secrets.VITE_APP_API_KEY }}" ]; then
+            echo "VITE_APP_API_KEY is set"
+          else
+            echo "VITE_APP_API_KEY is NOT set"
+          fi
 
-      # ビルド時の環境変数確認
-      - name: Build with debug
+      # .envファイルの作成
+      - name: Create env file
         working-directory: ./frontend
+        shell: bash
         run: |
-          echo "Build environment variables:"
-            echo "VITE_APP_API_KEY exists: ${{ env.VITE_APP_API_KEY != '' }}"
-        env:
-          VITE_APP_API_KEY: ${{ secrets.VITE_APP_API_KEY }}
-          VITE_APP_API_URL: ${{ secrets.VITE_APP_API_URL }}
+          echo "VITE_APP_API_KEY='${{ secrets.VITE_APP_API_KEY }}'" > .env
+          echo "VITE_APP_API_URL='${{ secrets.VITE_APP_API_URL }}'" >> .env
+          
+          # .envファイルが作成されたか確認（機密情報は表示しない）
+          echo "Created .env file with following keys:"
+          cat .env | cut -d= -f1
+
+      - name: Debug env
+        working-directory: ./frontend
+        shell: bash
+        run: |
+          echo "VITE_APP_API_KEY: ${{ env.VITE_APP_API_KEY }}"
+          echo "VITE_APP_API_URL: ${{ env.VITE_APP_API_URL }}"
 
       - name: Install dependencies and build
         working-directory: ./frontend
