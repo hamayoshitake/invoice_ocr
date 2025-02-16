@@ -33,8 +33,6 @@ const DownloadInvoiceCsvForm: React.FC = () => {
 
     setLoading(true);
 
-    console.log(import.meta.env.VITE_APP_API_URL);
-
     try {
       const response = await axios.post<ApiResponse>(
         `${import.meta.env.VITE_APP_API_URL}/api/csv/download`,
