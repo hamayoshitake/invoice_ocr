@@ -1,5 +1,7 @@
 import fs from "fs";
 import path from "path";
+import {generateJstTimestamp} from "../Utils/date";
+import {LocalStorageError} from "../errors/CustomErrors";
 
 export async function exportLocalStorageInvoiceData(data: any, savePath = "invoiceData") {
   // 一時ディレクトリを使用
@@ -11,22 +13,14 @@ export async function exportLocalStorageInvoiceData(data: any, savePath = "invoi
     fs.mkdirSync(storagePath, {recursive: true});
   }
 
-  const date = new Date();
-  const jstDate = new Date(date.getTime() + (9 * 60 * 60 * 1000));
-  const now = jstDate.toISOString()
-    .replace(/[-:]/g, "")
-    .replace(/\..+/, "")
-    .replace("T", "_");
-
   try {
-    const invoiceDataFilePath = path.join(storagePath, `invoice_${now}.json`);
+    const invoiceDataFilePath = path.join(storagePath, `invoice_${generateJstTimestamp()}.json`);
     await fs.promises.writeFile(
       invoiceDataFilePath,
       JSON.stringify(data, null, 2)
     );
-    console.log(`Document AI response saved to: ${invoiceDataFilePath}`);
+    console.log(`savePath saved to: ${invoiceDataFilePath}`);
   } catch (error) {
-    console.error("Error saving Document AI response:", error);
-    throw error;
+    throw new LocalStorageError(`${savePath}にデータを保存できませんでした。`);
   }
 }

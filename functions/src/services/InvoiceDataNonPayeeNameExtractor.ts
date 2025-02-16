@@ -1,6 +1,7 @@
 import {BaseInvoiceDataExtractor} from "./abstructs/BaseInvoiceDataExtractor";
 import {ExtractDataParams} from "../types/ExtractDataParams";
 import {SecretParam} from "firebase-functions/lib/params/types";
+import {OpenAIError} from "openai";
 
 export class InvoiceDataNonPayeeNameExtractor extends BaseInvoiceDataExtractor {
   protected createPrompt(params: ExtractDataParams): string {
@@ -34,6 +35,9 @@ export class InvoiceDataNonPayeeNameExtractor extends BaseInvoiceDataExtractor {
       3. 判別のプロセス：
         まず、テキスト内の会社情報を特定し、上記の判別基準に基づいて請求元と請求先を分類してください。
         その後、それぞれの情報を適切なフィールドに割り当ててください。
+        文書に記載されている内容をできるだけ原文のまま抽出
+        不要な加工や解釈を避ける
+        表記ゆれの統一は最小限に留める
 
       必須項目および任意項目を含む全ての情報を抽出してください：
 
@@ -101,8 +105,12 @@ export async function processInvoiceDataWithoutPayeeName(
   ocrResponse: any,
   openaiApiKey: SecretParam
 ) {
-  const extractor = new InvoiceDataNonPayeeNameExtractor(openaiApiKey.value());
-  return await extractor.extractData({
-    text: ocrResponse.text,
-  });
+  try {
+    const extractor = new InvoiceDataNonPayeeNameExtractor(openaiApiKey.value());
+    return await extractor.extractData({
+      text: ocrResponse.text,
+    });
+  } catch (error) {
+    throw new OpenAIError("請求書データをAIで整形できませんでした");
+  }
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
-import '../styles/component/InvoiceUploadFormOnly.scss';
+import '../styles/component/GetInvoiceDataApiForm.scss';
 import { InvoiceData, InvoiceDetail } from '../types/InvoiceData';
 import { INVOICE_FIELD_LABELS, DisplayFields } from '../constants/labels/invoiceFieldLabels';
 import { useEffect } from 'react';
@@ -8,9 +8,9 @@ import { useEffect } from 'react';
 type ResponseData = {
   status: string;
   data: InvoiceData;
-} 
+}
 
-const ImageUploadForm = () => {
+const GetInvoiceDataApiForm = () => {
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -35,14 +35,16 @@ const ImageUploadForm = () => {
     const formData = new FormData();
     formData.append('file', file);
 
+    console.log(import.meta.env.VITE_APP_API_URL);
+
     try {
       const response = await axios.post(
-        'https://us-central1-invoice-ocr-app-668f6.cloudfunctions.net/api/ocr/invoice',
-        // 'http://127.0.0.1:5001/invoice-ocr-app-668f6/us-central1/api/ocr/invoice',
+        `${import.meta.env.VITE_APP_API_URL}/api/invoice`,
         formData,
         {
           headers: {
-            'Content-Type': 'application/pdf'
+            'Content-Type': 'application/pdf',
+            'x-api-key': import.meta.env.VITE_APP_API_KEY
           },
           withCredentials: false,
         }
@@ -52,9 +54,10 @@ const ImageUploadForm = () => {
       const responseInvoiceData = await responseData.data as InvoiceData;
       setInvoiceData(responseInvoiceData);
       setMessage({ text: '画像の処理が成功しました', isError: false });
-    } catch (error) {
+    } catch (error: any) {
+      console.error(error);
       setMessage({
-        text: error instanceof Error ? error.message : '画像の処理中にエラーが発生しました',
+        text: error.response?.data?.message || '画像の処理中にエラーが発生しました',
         isError: true
       });
     } finally {
@@ -85,9 +88,13 @@ const ImageUploadForm = () => {
     }
   }, [invoiceData]);
 
+  useEffect(() => {
+    setMessage(null);
+  }, []);
+
   return (
     <div className="image-upload-container">
-      <h2>請求書OCRテスト</h2>
+      <h3>請求書OCRテスト</h3>
 
       {message && (
         <div className={`alert ${message.isError ? 'alert-danger' : 'alert-success'} mt-3`}>
@@ -103,7 +110,7 @@ const ImageUploadForm = () => {
               <div className="form-group">
                 <input
                   type="file"
-                  accept="application/pdf"
+                  accept=".pdf"
                   onChange={handleFileChange}
                   className="form-control"
                 />
@@ -238,4 +245,4 @@ const ImageUploadForm = () => {
   );
 };
 
-export default ImageUploadForm;
+export default GetInvoiceDataApiForm;

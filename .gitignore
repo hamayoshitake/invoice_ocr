@@ -68,7 +68,11 @@ node_modules/
 # dataconnect generated files
 .dataconnect
 
+.DS_Store
+
 # runtimeconfig.json
 functions/.runtimeconfig.json
 
-.DS_Store
+storage.rules
+
+/emulator-data

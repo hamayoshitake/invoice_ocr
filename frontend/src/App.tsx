@@ -1,8 +1,8 @@
 // src/App.tsx
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/App.scss';
-import InvoiceUploadForm from './components/InvoiceUploadForm';
-import InvoiceUploadFormOnly from './components/InvoiceUploadFormOnly';
+import DownloadInvoiceCsvForm from './components/DownloadInvoiceCsvForm';
+import GetInvoiceDataApiForm from './components/GetInvoiceDataApiForm';
 import { getAnalytics } from "firebase/analytics";
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
@@ -17,7 +17,7 @@ function App() {
   return (
     <Router>
       <div className="App">
-        <nav className="navbar navbar-expand-lg navbar-light bg-light">
+        <nav className="navbar navbar-expand-lg navbar-light bg-light mb-0">
           <div className="container" style={{ paddingLeft: '60px' , paddingRight: '60px' }}>
             <Link className="navbar-brand" to="/">ホーム</Link>
             <div className="navbar-nav">
@@ -27,7 +27,7 @@ function App() {
           </div>
         </nav>
 
-        <div className="container mt-4">
+        <div className="container">
           <Routes>
             <Route path="/" element={
               <div className="text-center">
@@ -35,8 +35,8 @@ function App() {
                 <p>アップロードしたいファイルの種類を選択してください</p>
               </div>
             } />
-            <Route path="/invoice/csv" element={<InvoiceUploadForm />} />
-            <Route path="/invoice/ocr" element={<InvoiceUploadFormOnly />} />
+            <Route path="/invoice/csv" element={<DownloadInvoiceCsvForm />} />
+            <Route path="/invoice/ocr" element={<GetInvoiceDataApiForm />} />
           </Routes>
         </div>
       </div>
