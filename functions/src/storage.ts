@@ -63,7 +63,6 @@ export const getStorageSavedFileUrl = async (fileName: string): Promise<string> 
     }
 
     const [url] = await file.getSignedUrl({
-      version: "v4",
       action: "read",
       expires: Date.now() + 15 * 60 * 1000, // 15分
     });
