@@ -10,7 +10,11 @@ type ResponseData = {
   data: InvoiceData;
 }
 
-const GetInvoiceDataApiForm = () => {
+interface GetInvoiceDataApiFormProps {
+  service: 'ai' | 'intelligence';
+}
+
+const GetInvoiceDataApiForm = ({service}: GetInvoiceDataApiFormProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +35,10 @@ const GetInvoiceDataApiForm = () => {
       return;
     }
 
+    const endpoint = service === 'ai'
+    ? '/api/invoice/document-ai/analyze'
+    : '/api/invoice/document-intelligence/analyze';
+
     setIsLoading(true);
     const formData = new FormData();
     formData.append('file', file);
@@ -39,7 +47,7 @@ const GetInvoiceDataApiForm = () => {
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_APP_API_URL}/api/invoice`,
+        `${import.meta.env.VITE_APP_API_URL}${endpoint}`,
         formData,
         {
           headers: {

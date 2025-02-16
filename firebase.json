@@ -32,6 +32,12 @@
       "predeploy": [
         "npm --prefix \"$RESOURCE_DIR\" run lint",
         "npm --prefix \"$RESOURCE_DIR\" run build"
+      ],
+      "secrets": [
+        "PROJECT_OCR_ID",
+        "LOCATION",
+        "PROCESSOR_OCR_ID",
+        "OPENAI_API_KEY"
       ]
     }
   ],
