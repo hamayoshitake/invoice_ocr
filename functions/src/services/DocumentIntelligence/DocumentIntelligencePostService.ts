@@ -1,7 +1,5 @@
 import documentIntelligence, {DocumentIntelligenceClient, DocumentClassifierBuildOperationDetailsOutput, getLongRunningPoller, isUnexpected} from "@azure-rest/ai-document-intelligence";
-import {exportLocalStorageInvoiceData} from "../ExportLocalStorageInvoiceData";
 import {AzureKeyCredential} from "@azure/core-auth";
-import {LayoutAnalyzerService} from "./LayoutAnalyzerService";
 
 export class DocumentIntelligencePostService {
   private client: DocumentIntelligenceClient;
@@ -33,19 +31,6 @@ export class DocumentIntelligencePostService {
       const poller = await getLongRunningPoller(this.client, initialResponse);
       const response = (await poller.pollUntilDone())
         .body as DocumentClassifierBuildOperationDetailsOutput;
-
-      exportLocalStorageInvoiceData(response, "documentIntelligence");
-
-      const layoutAnalyzer = new LayoutAnalyzerService();
-      const sections = layoutAnalyzer.analyzeLayout(response);
-
-      console.log(sections);
-
-      exportLocalStorageInvoiceData(sections, "documentIntelligenceAnalyzer");
-
-      const docuemts = layoutAnalyzer.getDocumentsFields(response);
-
-      exportLocalStorageInvoiceData(docuemts, "documentIntelligenceDocuments");
 
       return response;
     } catch (error) {

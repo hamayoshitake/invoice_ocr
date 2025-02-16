@@ -1,4 +1,4 @@
 export interface ExtractDataParams {
-  text: string;
+  text: any;
   payeeCompanyName?: string;
 }

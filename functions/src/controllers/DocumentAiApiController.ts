@@ -9,7 +9,7 @@ import {DocumentAIError, ValidationError} from "../errors/CustomErrors";
 import {OpenAIError} from "openai";
 
 
-export const InvoiceOcrDocumentAiApiController = {
+export const DocumentAiApiController = {
   async performInvoiceOcr(req: Request, res: Response, secrets: Secrets) {
     let fileBuffer: Buffer | null = null;
 

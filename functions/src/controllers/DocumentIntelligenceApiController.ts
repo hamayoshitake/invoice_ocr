@@ -1,16 +1,15 @@
 import {Request} from "firebase-functions/v2/https";
 import {Response} from "express";
-// import {processInvoiceDataWithoutPayeeName} from "../services/InvoiceDataNonPayeeNameExtractor";
 import busboy from "busboy";
-// import {exportLocalStorageInvoiceData} from "../services/ExportLocalStorageInvoiceData";
-// import {DocumentAIService} from "../services/DocumentAiService";
-import {DocumentIntelligencePostService} from "../services/DocumentIntelligence/DocumentIntelligencePostService";
+import {DocumentIntelligencePostService} from "../services/DocumentIntelligence/documentIntelligencePostService";
 import {Secrets} from "../schemas/secret";
 import {DocumentAIError, ValidationError} from "../errors/CustomErrors";
 import {OpenAIError} from "openai";
+import {extractDocumentIntelligence} from "../services/DocumentIntelligenceExtractor";
+import {exportLocalStorageInvoiceData} from "../services/ExportLocalStorageInvoiceData";
+import {AnalyzerService} from "../services/DocumentIntelligence/AnalyzerService";
 
-
-export const InvoiceOcrDocumentIntelligenceApiController = {
+export const DocumentIntelligenceApiController = {
   async performInvoiceOcr(req: Request, res: Response, secrets: Secrets) {
     let fileBuffer: Buffer | null = null;
 
@@ -37,27 +36,25 @@ export const InvoiceOcrDocumentIntelligenceApiController = {
       try {
         // Document AIを使用して請求書データを取得
         const base64File = fileBuffer.toString("base64");
-        // const documentAIService = new DocumentAIService();
         const documentIntelligencePostService = new DocumentIntelligencePostService();
         const result = await documentIntelligencePostService.process(base64File);
-        // const result = await documentAIService.processDocument(base64File, secrets);
 
+        // レスポンスデータを必要なデータに整形
+        const analyzerService = new AnalyzerService();
+        const analyzeLayout = analyzerService.analyzeDocument(result);
 
-        // // ローカルストレージに請求書データを保存
-        // exportLocalStorageInvoiceData(result.document);
+        // ローカルストレージに請求書データを保存
+        exportLocalStorageInvoiceData(analyzeLayout, "documentIntelligenceAnalyzer");
 
-        // // 請求書データをAIで整形
-        // const invoiceData = await processInvoiceDataWithoutPayeeName(
-        //   result.document,
-        //   secrets.openaiApiKey
-        // );
+        // aiで整形したデータを返す
+        const returnAiData = await extractDocumentIntelligence(analyzeLayout, secrets.openaiApiKey);
 
-        // // ローカルストレージにaiで整形したsデータを保存
-        // exportLocalStorageInvoiceData(invoiceData, "llmData");
+        // ローカルストレージに請求書データを保存
+        exportLocalStorageInvoiceData(returnAiData, "exportAiDocumentIntelligence");
 
         return res.status(200).json({
           status: "success",
-          data: result,
+          data: returnAiData,
         });
       } catch (error: any) {
         console.error("Error details:", error);

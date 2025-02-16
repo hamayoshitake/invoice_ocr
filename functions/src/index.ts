@@ -3,8 +3,8 @@ import {InvoiceOcrCsvController} from "./controllers/InvoiceOcrCsvController";
 import * as admin from "firebase-admin";
 import {secrets} from "./secret";
 import * as serviceAccount from "./secretKeys/invoice-ocr-app-668f6-firebase-adminsdk-8saw5-e731b401ea.json";
-import {InvoiceOcrDocumentAiApiController} from "./controllers/InvoiceOcrDocumentAiApiController";
-// import {InvoiceOcrDocumentIntelligenceApiController} from "./controllers/InvoiceOcrDocumentIntelligenceApiController";
+import {DocumentAiApiController} from "./controllers/DocumentAiApiController";
+import {DocumentIntelligenceApiController} from "./controllers/DocumentIntelligenceApiController";
 import {validateApiKey} from "./middleware/apiKeyAuth";
 import {logApiAccess} from "./services/operation/ApiLogger";
 import {ApiKeyCreateContoroller} from "./controllers/ApiKeyCreateContoroller";
@@ -43,9 +43,9 @@ export const api = https.onRequest({
       InvoiceOcrCsvController.performCsvDownload(req, res, secrets);
     } else if (req.path === "/invoice/document-ai/analyze") {
       console.log(secrets);
-      InvoiceOcrDocumentAiApiController.performInvoiceOcr(req, res, secrets);
+      DocumentAiApiController.performInvoiceOcr(req, res, secrets);
     } else if (req.path === "/invoice/document-intelligence/analyze") {
-      InvoiceOcrDocumentAiApiController.performInvoiceOcr(req, res, secrets);
+      DocumentIntelligenceApiController.performInvoiceOcr(req, res, secrets);
     } else {
       res.status(404).send("Not Found");
     }
