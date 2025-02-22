@@ -45,6 +45,13 @@ export const checkFileExists = async (filePath: string): Promise<boolean> => {
 // ファイルのURL取得用の関数
 export const getStorageSavedFileUrl = async (fileName: string): Promise<string> => {
   try {
+    const isExists = await checkFileExists(fileName);
+    if (isExists) {
+      console.log("ファイルが見つかりました");
+    } else {
+      throw new Error("ファイルが見つかりません");
+    }
+
     const bucket = admin.storage().bucket();
     const file = bucket.file(fileName);
 
@@ -63,6 +70,7 @@ export const getStorageSavedFileUrl = async (fileName: string): Promise<string> 
     }
 
     const [url] = await file.getSignedUrl({
+      version: "v4",
       action: "read",
       expires: Date.now() + 15 * 60 * 1000, // 15分
     });

@@ -35,11 +35,11 @@ export interface InvoiceData {
 
 // Zodスキーマの定義
 const InvoiceDetailSchema = z.object({
-  item_date: z.string().nullable(),
-  item_description: z.string().nullable(),
-  item_amount: z.number().nullable(),
-  item_quantity: z.number().nullable(),
-  item_unit_price: z.number().nullable(),
+  item_date: z.string(),
+  item_description: z.string(),
+  item_amount: z.number(),
+  item_quantity: z.number(),
+  item_unit_price: z.number(),
 });
 
 export const InvoiceDataSchema = z.object({
@@ -64,6 +64,10 @@ export const InvoiceDataSchema = z.object({
   bank_store_type: z.string().nullable().optional(),
   bank_type: z.string().nullable().optional(),
   bank_number: z.string().nullable().optional(),
-  invoice_details: z.array(InvoiceDetailSchema),
+  invoice_details: z.array(InvoiceDetailSchema).nullable().optional(),
   memo: z.string().nullable().optional(),
+});
+
+export const TablesRequiredSchema = z.object({
+  invoice_details: z.array(InvoiceDetailSchema),
 });

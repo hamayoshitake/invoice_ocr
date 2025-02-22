@@ -55,10 +55,10 @@ export const InvoiceOcrCsvController = {
         }
 
         // GCSにCSV形式で保存
-        const fileName = await uploadInvoiceCsvToStorage(csvFileName, csvContent);
+        await uploadInvoiceCsvToStorage(csvFileName, csvContent);
 
         // クライアントにCSVのURLを返す
-        const url = await getStorageSavedFileUrl(fileName);
+        const url = await getStorageSavedFileUrl(csvFileName);
         return res.status(200).json({downloadUrl: url});
       } catch (error: any) {
         // ファイルが存在したら、削除する
