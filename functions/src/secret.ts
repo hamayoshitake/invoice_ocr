@@ -5,4 +5,5 @@ export const secrets = {
   location: defineSecret("LOCATION"),
   processorOcrId: defineSecret("PROCESSOR_OCR_ID"),
   openaiApiKey: defineSecret("OPENAI_API_KEY"),
+  anthropicApiKey: defineSecret("ANTHROPIC_API_KEY"),
 };

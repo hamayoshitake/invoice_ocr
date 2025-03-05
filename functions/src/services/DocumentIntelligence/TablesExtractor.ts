@@ -2,8 +2,9 @@ import {BaseInvoiceDataExtractor} from "../abstructs/BaseInvoiceDataExtractor";
 import {ExtractDataParams} from "../../types/ExtractDataParams";
 import {SecretParam} from "firebase-functions/lib/params/types";
 import {OpenAIError} from "openai";
-import {InvoiceData, TablesRequiredSchema} from "../../schemas/InvoiceData";
+import {TablesRequiredSchema} from "../../schemas/InvoiceData";
 import {exportLocalStorageInvoiceData} from "../ExportLocalStorageInvoiceData";
+import {OpenAiApi4oService} from "../AiModels/OpenAiApi4oService";
 
 export class TablesExtractor extends BaseInvoiceDataExtractor {
   protected createPrompt(linesAndTables: ExtractDataParams): string {
@@ -13,7 +14,7 @@ export class TablesExtractor extends BaseInvoiceDataExtractor {
       抽出ルール:
       1. 明細行の構造:
         - item_date: 日付
-      - item_description: 商品名/説明
+        - item_description: 商品名/説明
         - item_amount: 金額
         - item_quantity: 数量
         - item_unit_price: 単価
@@ -60,45 +61,26 @@ export class TablesExtractor extends BaseInvoiceDataExtractor {
       `;
   }
 
-  async extractData(params: ExtractDataParams): Promise<InvoiceData> {
+  async extractData(params: ExtractDataParams, openaiApiKey: SecretParam): Promise<any> {
     let attempts = 0;
     let lastError: Error | null = null;
 
     while (attempts < this.maxRetries) {
       try {
-        const response = await this.openai.chat.completions.create({
-          model: "gpt-4o",
-          temperature: 0.1, // 一貫性のある応答を生成するため
-          messages: [
-            {
-              role: "system",
-              content: "請求書のテキストからJSON形式で情報を抽出するアシスタントです。",
-            },
-            {
-              role: "user",
-              content: this.createPrompt(params),
-            },
-          ],
-          response_format: {type: "json_object"},
-        });
+        const openAiApiFormatService = new OpenAiApi4oService(openaiApiKey);
+        const response = await openAiApiFormatService.postOpenAiApi(
+          this.createPrompt(params)
+        );
 
-        const content = response.choices[0].message.content;
-        if (!content) {
-          throw new Error("LLMからの応答が空です");
-        }
-
-        // JSONの抽出とパース処理
-        const extractedData = await this.parseJsonContent(content);
-
-        exportLocalStorageInvoiceData(extractedData, "openaiExtractedTables");
+        exportLocalStorageInvoiceData(response, "openAiExtractedTables");
 
         // バリデーション
-        const validationResult = TablesRequiredSchema.safeParse(extractedData);
+        const validationResult = TablesRequiredSchema.safeParse(response);
         if (!validationResult.success) {
           throw new Error(`バリデーションエラー: ${validationResult.error.message}`);
         }
 
-        return extractedData;
+        return response;
       } catch (error) {
         const err = error as Error;
         lastError = err;
@@ -120,9 +102,9 @@ export async function extractTables(
   openaiApiKey: SecretParam
 ) {
   try {
-    const extractor = new TablesExtractor(openaiApiKey.value());
+    const extractor = new TablesExtractor();
 
-    return await extractor.extractData({text: linesAndTables.tableData});
+    return await extractor.extractData({text: linesAndTables.tableData}, openaiApiKey);
   } catch (error) {
     throw new OpenAIError("請求書データをAIで整形できませんでした");
   }

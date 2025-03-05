@@ -16,6 +16,7 @@
   },
   "main": "lib/index.js",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.36.3",
     "@azure-rest/ai-document-intelligence": "^1.0.0-beta.3",
     "@azure/ai-form-recognizer": "^5.0.0",
     "@azure/core-auth": "^1.9.0",
@@ -30,7 +31,8 @@
     "fabricator": "^0.5.2",
     "firebase": "^11.3.1",
     "firebase-admin": "^13.0.2",
-    "firebase-functions": "^6.2.0",
+    "firebase-functions": "^6.3.2",
+    "fs": "^0.0.1-security",
     "json-schema-traverse": "^1.0.0",
     "openai": "^4.78.1",
     "zod": "^3.24.1"

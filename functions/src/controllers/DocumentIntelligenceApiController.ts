@@ -1,15 +1,14 @@
 import {Request} from "firebase-functions/v2/https";
 import {Response} from "express";
 import busboy from "busboy";
-import {DocumentIntelligencePostService} from "../services/DocumentIntelligence/DocumentIntelligencePostService";
+import {DocumentIntelligencePost} from "../services/DocumentIntelligence/DocumentIntelligencePost";
 import {Secrets} from "../schemas/secret";
 import {DocumentAIError, ValidationError} from "../errors/CustomErrors";
 import {OpenAIError} from "openai";
 import {extractLines} from "../services/DocumentIntelligence/LinesExtractor";
 import {extractTables} from "../services/DocumentIntelligence/TablesExtractor";
 import {exportLocalStorageInvoiceData} from "../services/ExportLocalStorageInvoiceData";
-// import {AnalyzerService} from "../services/DocumentIntelligence/AnalyzerService";
-import {AiAgentService} from "../services/DocumentIntelligence/AiAgentService";
+import {TablesService} from "../services/DocumentIntelligence/TablesService";
 
 export const DocumentIntelligenceApiController = {
   async performInvoiceOcr(req: Request, res: Response, secrets: Secrets) {
@@ -38,59 +37,23 @@ export const DocumentIntelligenceApiController = {
       try {
         // Document AIを使用して請求書データを取得
         const base64File = fileBuffer.toString("base64");
-        const documentIntelligencePostService = new DocumentIntelligencePostService();
-        const intelligenceResult = await documentIntelligencePostService.process(base64File);
+        const documentIntelligencePost = new DocumentIntelligencePost();
+        const intelligenceResult = await documentIntelligencePost.process(base64File);
         exportLocalStorageInvoiceData(intelligenceResult, "documentIntelligenceResult");
 
-        // // レスポンスデータを必要なデータに整形
-        const aiAgentService = new AiAgentService(secrets.openaiApiKey);
-
         // 並列で実行する
-        // 並列実行
         const [invoiceHeaderData, invoiceDetailData] = await Promise.all([
           (async () => {
-            const data = await aiAgentService.processLines(intelligenceResult);
-            await exportLocalStorageInvoiceData(data, "linesData");
-            return await extractLines(data, secrets.openaiApiKey);
+            return await extractLines(intelligenceResult.analyzeResult?.pages[0].lines, secrets.openaiApiKey);
           })(),
           (async () => {
-            const data = await aiAgentService.processTables(intelligenceResult);
+            // // レスポンスデータを必要なデータに整形
+            const tablesService = new TablesService(secrets.openaiApiKey);
+            const data = await tablesService.process(intelligenceResult);
             await exportLocalStorageInvoiceData(data, "tableData");
             return await extractTables(data, secrets.openaiApiKey);
           })(),
         ]);
-
-        // const invoiceHeaderData = await resultLinesData.then((data: any) => {
-        //   return extractLines(data, secrets.openaiApiKey);
-        // });
-
-        // await invoiceHeaderData.then((data: any) => {
-        //   exportLocalStorageInvoiceData(data, "tableData");
-        // });
-
-        // const invoiceDetailData = await resultTableData.then((data: any) => {
-        //   return extractTables(data, secrets.openaiApiKey);
-        // });
-
-        // await resultTableData.then((data: any) => {
-        //   exportLocalStorageInvoiceData(data, "tableData");
-        // });
-
-
-        // await exportLocalStorageInvoiceData(resultTableData, "tableData");
-
-        // const linesAndTables = [...resultLinesData, ...resultTableData];
-
-        // ローカルストレージに請求書データを保存
-        // await exportLocalStorageInvoiceData(linesAndTables, "documentIntelligenceAnalyzer");
-
-        // aiで整形したデータを返す
-
-        // const invoiceHeaderData = await extractLines(resultLinesData, secrets.openaiApiKey);
-        // await exportLocalStorageInvoiceData(invoiceHeaderData, "invoiceHeaderData");
-
-        // const invoiceDetailData = await extractTables(resultTableData, secrets.openaiApiKey);
-        // await exportLocalStorageInvoiceData(invoiceDetailData, "invoiceDetailData");
 
         // ローカルストレージに請求書データを保存
         const returnAiData = {

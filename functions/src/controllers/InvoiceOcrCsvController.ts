@@ -1,6 +1,6 @@
 import {Request} from "firebase-functions/v2/https";
 import {Response} from "express";
-import {processInvoiceDataWithoutPayeeName} from "../services/InvoiceDataNonPayeeNameExtractor";
+import {processInvoiceData} from "../services/DocumentAi/Extractor";
 import {getCsvContent} from "../services/CsvGenerator";
 import busboy from "busboy";
 import {uploadInvoiceCsvToStorage, getStorageSavedFileUrl} from "../storage";
@@ -46,7 +46,7 @@ export const InvoiceOcrCsvController = {
         const result = await documentAIService.processDocument(base64File, secrets);
 
         // 請求書のデータをAIで整形
-        const invoiceData = await processInvoiceDataWithoutPayeeName(result.document, secrets.openaiApiKey);
+        const invoiceData = await processInvoiceData(result.document, secrets.openaiApiKey);
 
         // CSV用のデータを作成
         const csvContent = getCsvContent(invoiceData);

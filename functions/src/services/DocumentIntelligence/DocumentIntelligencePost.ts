@@ -1,7 +1,12 @@
-import documentIntelligence, {DocumentIntelligenceClient, DocumentClassifierBuildOperationDetailsOutput, getLongRunningPoller, isUnexpected} from "@azure-rest/ai-document-intelligence";
+import documentIntelligence, {
+  DocumentIntelligenceClient,
+  getLongRunningPoller,
+  isUnexpected,
+  AnalyzeResultOperationOutput,
+} from "@azure-rest/ai-document-intelligence";
 import {AzureKeyCredential} from "@azure/core-auth";
 
-export class DocumentIntelligencePostService {
+export class DocumentIntelligencePost {
   private client: DocumentIntelligenceClient;
 
   constructor() {
@@ -30,7 +35,7 @@ export class DocumentIntelligencePostService {
 
       const poller = await getLongRunningPoller(this.client, initialResponse);
       const response = (await poller.pollUntilDone())
-        .body as DocumentClassifierBuildOperationDetailsOutput;
+        .body as AnalyzeResultOperationOutput;
 
       return response;
     } catch (error) {
