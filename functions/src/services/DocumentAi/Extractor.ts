@@ -1,9 +1,10 @@
-import {BaseInvoiceDataExtractor} from "./abstructs/BaseInvoiceDataExtractor";
-import {ExtractDataParams} from "../types/ExtractDataParams";
+import {BaseInvoiceDataExtractor} from "../abstructs/BaseInvoiceDataExtractor";
+import {ExtractDataParams} from "../../types/ExtractDataParams";
 import {SecretParam} from "firebase-functions/lib/params/types";
 import {OpenAIError} from "openai";
-
-export class InvoiceDataNonPayeeNameExtractor extends BaseInvoiceDataExtractor {
+import {InvoiceData, InvoiceDataSchema} from "../../schemas/InvoiceData";
+import {OpenAiApi4oService} from "../AiModels/OpenAiApi4oService";
+export class Extractor extends BaseInvoiceDataExtractor {
   protected createPrompt(params: ExtractDataParams): string {
     return `
       以下の請求書のテキストから、JSONフォーマットで情報を抽出してください。
@@ -99,17 +100,50 @@ export class InvoiceDataNonPayeeNameExtractor extends BaseInvoiceDataExtractor {
       ${params.text}
       `;
   }
+
+  async extractData(params: ExtractDataParams, openaiApiKey: SecretParam): Promise<InvoiceData> {
+    let attempts = 0;
+    let lastError: Error | null = null;
+
+    while (attempts < this.maxRetries) {
+      try {
+        const openAiApiFormatService = new OpenAiApi4oService(openaiApiKey);
+        const response = await openAiApiFormatService.postOpenAiApi(
+          this.createPrompt(params)
+        );
+
+        // バリデーション
+        const validationResult = InvoiceDataSchema.safeParse(response);
+        if (!validationResult.success) {
+          throw new Error(`バリデーションエラー: ${validationResult.error.message}`);
+        }
+
+        return response;
+      } catch (error) {
+        const err = error as Error;
+        lastError = err;
+        attempts++;
+        console.warn(`試行 ${attempts}/${this.maxRetries} 失敗: ${err.message}`);
+
+        if (attempts === this.maxRetries) {
+          throw new Error(`データ抽出に失敗しました: ${lastError.message}`);
+        }
+      }
+    }
+
+    throw lastError;
+  }
 }
 
-export async function processInvoiceDataWithoutPayeeName(
+export async function processInvoiceData(
   ocrResponse: any,
   openaiApiKey: SecretParam
 ) {
   try {
-    const extractor = new InvoiceDataNonPayeeNameExtractor(openaiApiKey.value());
+    const extractor = new Extractor();
     return await extractor.extractData({
       text: ocrResponse.text,
-    });
+    }, openaiApiKey);
   } catch (error) {
     throw new OpenAIError("請求書データをAIで整形できませんでした");
   }

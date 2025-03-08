@@ -1,6 +1,6 @@
 import {Request} from "firebase-functions/v2/https";
 import {Response} from "express";
-import {processInvoiceDataWithoutPayeeName} from "../services/InvoiceDataNonPayeeNameExtractor";
+import {processInvoiceData} from "../services/DocumentAi/Extractor";
 import busboy from "busboy";
 import {exportLocalStorageInvoiceData} from "../services/ExportLocalStorageInvoiceData";
 import {DocumentAIService} from "../services/DocumentAiService";
@@ -8,8 +8,7 @@ import {Secrets} from "../schemas/secret";
 import {DocumentAIError, ValidationError} from "../errors/CustomErrors";
 import {OpenAIError} from "openai";
 
-
-export const InvoiceOcrApiController = {
+export const DocumentAiApiController = {
   async performInvoiceOcr(req: Request, res: Response, secrets: Secrets) {
     let fileBuffer: Buffer | null = null;
 
@@ -43,7 +42,7 @@ export const InvoiceOcrApiController = {
         exportLocalStorageInvoiceData(result.document);
 
         // 請求書データをAIで整形
-        const invoiceData = await processInvoiceDataWithoutPayeeName(
+        const invoiceData = await processInvoiceData(
           result.document,
           secrets.openaiApiKey
         );

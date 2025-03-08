@@ -6,7 +6,7 @@ interface ApiLogData {
   apiKey: string;
   endpoint: string;
   method: string;
-  requestBody: any;
+  // requestBody: any;
   responseStatus: number;
   processingTime: Timestamp;
   timestamp: Timestamp;
@@ -18,7 +18,7 @@ export const logApiAccess = async (req: Request, res: Response, startTime: numbe
     apiKey: req.headers["x-api-key"] as string,
     endpoint: req.path,
     method: req.method,
-    requestBody: req.body,
+    // requestBody: req.body,
     responseStatus: res.statusCode,
     processingTime: Timestamp.fromMillis(Date.now() - startTime),
     timestamp: Timestamp.now(),

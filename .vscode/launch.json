@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+      {
+          "name": "Inspect Function",
+          "type": "node",
+          "request": "attach",
+          "restart": true,
+          "sourceMaps": true,
+          "outFiles": ["${workspaceRoot}/functions/lib/**/*.js"]
+      }
+  ]
+}

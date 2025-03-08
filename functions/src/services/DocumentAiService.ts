@@ -20,7 +20,11 @@ export class DocumentAIService {
       };
 
       // ドキュメントの処理
+      const startTime = new Date().getTime();
       const [result] = await this.client.processDocument(request);
+      const endTime = new Date().getTime();
+      const processingTime = endTime - startTime;
+      console.log(`処理時間: ${processingTime}ms (${(processingTime / 1000).toFixed(2)}秒)`);
 
       if (!result || !result.document || !result.document.text) {
         throw new DocumentAIError("ドキュメントの解析に失敗しました");

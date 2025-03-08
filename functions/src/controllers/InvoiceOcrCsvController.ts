@@ -1,6 +1,6 @@
 import {Request} from "firebase-functions/v2/https";
 import {Response} from "express";
-import {processInvoiceDataWithoutPayeeName} from "../services/InvoiceDataNonPayeeNameExtractor";
+import {processInvoiceData} from "../services/DocumentAi/Extractor";
 import {getCsvContent} from "../services/CsvGenerator";
 import busboy from "busboy";
 import {uploadInvoiceCsvToStorage, getStorageSavedFileUrl} from "../storage";
@@ -46,7 +46,7 @@ export const InvoiceOcrCsvController = {
         const result = await documentAIService.processDocument(base64File, secrets);
 
         // 請求書のデータをAIで整形
-        const invoiceData = await processInvoiceDataWithoutPayeeName(result.document, secrets.openaiApiKey);
+        const invoiceData = await processInvoiceData(result.document, secrets.openaiApiKey);
 
         // CSV用のデータを作成
         const csvContent = getCsvContent(invoiceData);
@@ -55,10 +55,10 @@ export const InvoiceOcrCsvController = {
         }
 
         // GCSにCSV形式で保存
-        const fileName = await uploadInvoiceCsvToStorage(csvFileName, csvContent);
+        await uploadInvoiceCsvToStorage(csvFileName, csvContent);
 
         // クライアントにCSVのURLを返す
-        const url = await getStorageSavedFileUrl(fileName);
+        const url = await getStorageSavedFileUrl(csvFileName);
         return res.status(200).json({downloadUrl: url});
       } catch (error: any) {
         // ファイルが存在したら、削除する
