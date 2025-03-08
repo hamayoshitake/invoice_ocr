@@ -37,21 +37,20 @@ export const DocumentIntelligenceApiController = {
       try {
         // Document AIを使用して請求書データを取得
         const base64File = fileBuffer.toString("base64");
-        const documentIntelligencePost = new DocumentIntelligencePost();
+        const documentIntelligencePost = new DocumentIntelligencePost(secrets);
         const intelligenceResult = await documentIntelligencePost.process(base64File);
         exportLocalStorageInvoiceData(intelligenceResult, "documentIntelligenceResult");
 
         // 並列で実行する
         const [invoiceHeaderData, invoiceDetailData] = await Promise.all([
           (async () => {
-            return await extractLines(intelligenceResult.analyzeResult?.pages[0].lines, secrets.openaiApiKey);
-          })(),
-          (async () => {
             // // レスポンスデータを必要なデータに整形
             const tablesService = new TablesService(secrets.openaiApiKey);
             const data = await tablesService.process(intelligenceResult);
-            await exportLocalStorageInvoiceData(data, "tableData");
             return await extractTables(data, secrets.openaiApiKey);
+          })(),
+          (async () => {
+            return await extractLines(intelligenceResult.analyzeResult?.pages[0].lines, secrets.openaiApiKey);
           })(),
         ]);
 

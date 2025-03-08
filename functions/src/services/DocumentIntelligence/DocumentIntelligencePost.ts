@@ -5,13 +5,16 @@ import documentIntelligence, {
   AnalyzeResultOperationOutput,
 } from "@azure-rest/ai-document-intelligence";
 import {AzureKeyCredential} from "@azure/core-auth";
+import {Secrets} from "../../schemas/secret";
 
 export class DocumentIntelligencePost {
   private client: DocumentIntelligenceClient;
 
-  constructor() {
-    const endpoint = process.env.AZURE_ENDPOINT || "https://invoice-ocr-2025-2-15.cognitiveservices.azure.com/";
-    const key = process.env.AZURE_API_KEY || "5st2FfD8JXggAJH0WScCm7umqxTWQm92uViZwqR5Bccd2RmJIRHcJQQJ99BBACi0881XJ3w3AAAAACOGeJf4";
+  constructor(secrets: Secrets) {
+    const endpoint = secrets.azureOcrEndpoint.value();
+    const key = secrets.azureOcrApiKey.value();
+    console.log("azureOcrEndpoint", endpoint);
+    console.log("azureOcrApiKey", key);
 
     this.client = documentIntelligence(endpoint, new AzureKeyCredential(key));
   }
@@ -19,6 +22,9 @@ export class DocumentIntelligencePost {
   async process(base64File: string) {
     try {
       console.log("Starting document analysis...");
+
+      // ドキュメントの処理
+      const startTime = new Date().getTime();
 
       const initialResponse = await this.client
         .path("/documentModels/{modelId}:analyze", "prebuilt-invoice")
@@ -28,6 +34,10 @@ export class DocumentIntelligencePost {
             base64Source: base64File,
           },
         });
+
+      const endTime = new Date().getTime();
+      const processingTime = endTime - startTime;
+      console.log(`Intelligence API 処理時間: ${processingTime}ms (${(processingTime / 1000).toFixed(2)}秒)`);
 
       if (isUnexpected(initialResponse)) {
         throw initialResponse.body.error;

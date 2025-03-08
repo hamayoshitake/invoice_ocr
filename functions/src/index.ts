@@ -34,6 +34,8 @@ export const api = https.onRequest({
     secrets.location,
     secrets.processorOcrId,
     secrets.openaiApiKey,
+    secrets.azureOcrEndpoint,
+    secrets.azureOcrApiKey,
   ],
   invoker: "public",
 }, async (req, res) => {

@@ -28,6 +28,12 @@ const GetInvoiceDataApiForm = ({service}: GetInvoiceDataApiFormProps) => {
     }
   };
 
+  const formatJapanTime = (timestamp: number): string => {
+    return new Date(timestamp).toLocaleString('ja-JP', {
+      timeZone: 'Asia/Tokyo'
+    });
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!file) {
@@ -43,6 +49,11 @@ const GetInvoiceDataApiForm = ({service}: GetInvoiceDataApiFormProps) => {
     const formData = new FormData();
     formData.append('file', file);
 
+    const now = new Date();
+    const startTime = now.getTime();
+
+    console.log(`${formatJapanTime(startTime)} 開始`);
+
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_APP_API_URL}${endpoint}`,
@@ -55,6 +66,11 @@ const GetInvoiceDataApiForm = ({service}: GetInvoiceDataApiFormProps) => {
           withCredentials: false,
         }
       );
+
+      const endTime = new Date().getTime();
+      const processingTime = endTime - startTime;
+      console.log(`${formatJapanTime(endTime)} 終了`);
+      console.log(`処理時間: ${processingTime}ms (${(processingTime / 1000).toFixed(2)}秒)`);
 
       const responseData = await response.data as ResponseData;
       const responseInvoiceData = await responseData.data as InvoiceData;
