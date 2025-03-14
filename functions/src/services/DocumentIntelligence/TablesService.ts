@@ -109,7 +109,7 @@ export class TablesService {
     await exportLocalStorageInvoiceData(data, "tableDataValidateTableData");
 
     if (!data?.tableData || !Array.isArray(data.tableData)) {
-      console.log("lines配列が存在しません");
+      console.log("tableData配列が存在しません");
       return false;
     }
 
@@ -120,8 +120,26 @@ export class TablesService {
 
     // ヘッダー行の検証
     const header = data.tableData[0].content;
-    if (!header.includes("日付") || !header.includes("項目") || !header.includes("金額") || !header.includes("数量") || !header.includes("単価")) {
+    // 日付関連の正規表現
+    const dateRegex = /(日付|取引日|日時|年月日)/;
+    const hasDateColumn = dateRegex.test(header);
+
+    // 項目関連の正規表現
+    const itemRegex = /(項目|品目|商品|内容)/;
+    const hasItemColumn = itemRegex.test(header);
+
+    // その他の必須項目
+    const amountRegex = /金額/;
+    const quantityRegex = /数量/;
+    const unitPriceRegex = /単価/;
+
+    const hasAmount = amountRegex.test(header);
+    const hasQuantity = quantityRegex.test(header);
+    const hasUnitPrice = unitPriceRegex.test(header);
+
+    if (!hasDateColumn || !hasItemColumn || !hasAmount || !hasQuantity || !hasUnitPrice) {
       console.log("ヘッダー行が不正です");
+      console.log(`日付カラム: ${hasDateColumn}, 項目カラム: ${hasItemColumn}, 金額: ${hasAmount}, 数量: ${hasQuantity}, 単価: ${hasUnitPrice}`);
       return false;
     }
 

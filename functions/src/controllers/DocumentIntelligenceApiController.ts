@@ -5,9 +5,9 @@ import {DocumentIntelligencePost} from "../services/DocumentIntelligence/Documen
 import {Secrets} from "../schemas/secret";
 import {DocumentAIError, ValidationError} from "../errors/CustomErrors";
 import {OpenAIError} from "openai";
+import {exportLocalStorageInvoiceData} from "../services/ExportLocalStorageInvoiceData";
 import {extractLines} from "../services/DocumentIntelligence/LinesExtractor";
 import {extractTables} from "../services/DocumentIntelligence/TablesExtractor";
-import {exportLocalStorageInvoiceData} from "../services/ExportLocalStorageInvoiceData";
 import {TablesService} from "../services/DocumentIntelligence/TablesService";
 
 export const DocumentIntelligenceApiController = {
@@ -37,14 +37,16 @@ export const DocumentIntelligenceApiController = {
       try {
         // Document AIを使用して請求書データを取得
         const base64File = fileBuffer.toString("base64");
-        const documentIntelligencePost = new DocumentIntelligencePost(secrets);
+        const documentIntelligencePost = new DocumentIntelligencePost(secrets.azureOcrApiKey, secrets.azureOcrEndpoint);
+
         const intelligenceResult = await documentIntelligencePost.process(base64File);
+
         exportLocalStorageInvoiceData(intelligenceResult, "documentIntelligenceResult");
 
         // 並列で実行する
         const [invoiceHeaderData, invoiceDetailData] = await Promise.all([
           (async () => {
-            // // レスポンスデータを必要なデータに整形
+            // レスポンスデータを必要なデータに整形
             const tablesService = new TablesService(secrets.openaiApiKey);
             const data = await tablesService.process(intelligenceResult);
             return await extractTables(data, secrets.openaiApiKey);
