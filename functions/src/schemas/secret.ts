@@ -3,4 +3,6 @@ export interface Secrets {
   location: any;
   processorOcrId: any;
   openaiApiKey: any;
+  azureOcrEndpoint: any;
+  azureOcrApiKey: any;
 }

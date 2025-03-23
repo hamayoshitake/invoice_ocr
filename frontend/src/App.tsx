@@ -2,7 +2,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/App.scss';
 import DownloadInvoiceCsvForm from './components/DownloadInvoiceCsvForm';
-import GetInvoiceDataApiForm from './components/GetInvoiceDataApiForm';
+import InvoiceOcr from './pages/invoice-ocr-api';
 import { getAnalytics } from "firebase/analytics";
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
@@ -36,7 +36,7 @@ function App() {
               </div>
             } />
             <Route path="/invoice/csv" element={<DownloadInvoiceCsvForm />} />
-            <Route path="/invoice/ocr" element={<GetInvoiceDataApiForm />} />
+            <Route path="/invoice/ocr" element={<InvoiceOcr />} />
           </Routes>
         </div>
       </div>

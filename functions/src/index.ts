@@ -3,7 +3,8 @@ import {InvoiceOcrCsvController} from "./controllers/InvoiceOcrCsvController";
 import * as admin from "firebase-admin";
 import {secrets} from "./secret";
 import * as serviceAccount from "./secretKeys/invoice-ocr-app-668f6-firebase-adminsdk-8saw5-e731b401ea.json";
-import {InvoiceOcrApiController} from "./controllers/InvoiceOcrApiController";
+import {DocumentAiApiController} from "./controllers/DocumentAiApiController";
+import {DocumentIntelligenceApiController} from "./controllers/DocumentIntelligenceApiController";
 import {validateApiKey} from "./middleware/apiKeyAuth";
 import {logApiAccess} from "./services/operation/ApiLogger";
 import {ApiKeyCreateContoroller} from "./controllers/ApiKeyCreateContoroller";
@@ -14,6 +15,7 @@ setGlobalOptions({
 
 // 環境に応じた初期化処理
 if (process.env.FUNCTIONS_EMULATOR) {
+  console.log("エミュレータ環境");
   const serviceAccountTyped = serviceAccount as admin.ServiceAccount;
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccountTyped),
@@ -21,6 +23,7 @@ if (process.env.FUNCTIONS_EMULATOR) {
     storageBucket: "invoice-ocr-app-668f6.firebasestorage.app",
   });
 } else {
+  console.log("本番環境");
   admin.initializeApp();
 }
 
@@ -31,6 +34,8 @@ export const api = https.onRequest({
     secrets.location,
     secrets.processorOcrId,
     secrets.openaiApiKey,
+    secrets.azureOcrEndpoint,
+    secrets.azureOcrApiKey,
   ],
   invoker: "public",
 }, async (req, res) => {
@@ -38,8 +43,11 @@ export const api = https.onRequest({
   await validateApiKey(req, res, () => {
     if (req.path === "/csv/download") {
       InvoiceOcrCsvController.performCsvDownload(req, res, secrets);
-    } else if (req.path === "/invoice") {
-      InvoiceOcrApiController.performInvoiceOcr(req, res, secrets);
+    } else if (req.path === "/invoice/document-ai/analyze") {
+      console.log(secrets);
+      DocumentAiApiController.performInvoiceOcr(req, res, secrets);
+    } else if (req.path === "/invoice/document-intelligence/analyze") {
+      DocumentIntelligenceApiController.performInvoiceOcr(req, res, secrets);
     } else {
       res.status(404).send("Not Found");
     }

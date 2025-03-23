@@ -10,7 +10,11 @@ type ResponseData = {
   data: InvoiceData;
 }
 
-const GetInvoiceDataApiForm = () => {
+interface GetInvoiceDataApiFormProps {
+  service: 'ai' | 'intelligence';
+}
+
+const GetInvoiceDataApiForm = ({service}: GetInvoiceDataApiFormProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -24,6 +28,12 @@ const GetInvoiceDataApiForm = () => {
     }
   };
 
+  const formatJapanTime = (timestamp: number): string => {
+    return new Date(timestamp).toLocaleString('ja-JP', {
+      timeZone: 'Asia/Tokyo'
+    });
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!file) {
@@ -31,15 +41,22 @@ const GetInvoiceDataApiForm = () => {
       return;
     }
 
+    const endpoint = service === 'ai'
+    ? '/api/invoice/document-ai/analyze'
+    : '/api/invoice/document-intelligence/analyze';
+
     setIsLoading(true);
     const formData = new FormData();
     formData.append('file', file);
 
-    console.log(import.meta.env.VITE_APP_API_URL);
+    const now = new Date();
+    const startTime = now.getTime();
+
+    console.log(`${formatJapanTime(startTime)} 開始`);
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_APP_API_URL}/api/invoice`,
+        `${import.meta.env.VITE_APP_API_URL}${endpoint}`,
         formData,
         {
           headers: {
@@ -49,6 +66,11 @@ const GetInvoiceDataApiForm = () => {
           withCredentials: false,
         }
       );
+
+      const endTime = new Date().getTime();
+      const processingTime = endTime - startTime;
+      console.log(`${formatJapanTime(endTime)} 終了`);
+      console.log(`処理時間: ${processingTime}ms (${(processingTime / 1000).toFixed(2)}秒)`);
 
       const responseData = await response.data as ResponseData;
       const responseInvoiceData = await responseData.data as InvoiceData;
