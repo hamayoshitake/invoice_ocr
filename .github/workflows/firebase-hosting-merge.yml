@@ -13,14 +13,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: Create env file
         working-directory: ./frontend
-        shell: bash
         run: |
-          echo "VITE_APP_API_KEY=${{ secrets.VITE_APP_API_KEY }}" > .env
-          echo "VITE_APP_API_URL=${{ secrets.VITE_APP_API_URL }}" >> .env
+          echo "VITE_APP_API_KEY=${{ secrets.VITE_APP_API_KEY }}" > .env.production
+          echo "VITE_APP_API_URL=${{ secrets.VITE_APP_API_URL }}" >> .env.production
+          echo "VITE_APP_X_API_KEY=${{ secrets.X_API_KEY }}" >> .env.production
 
-          # .envファイルが作成されたか確認（機密情報は表示しない）
-          echo "Created .env file with following keys:"
-          cat .env | cut -d= -f1
+          # 環境変数のキーのみを表示（値は表示しない）
+          echo "Created .env.production file with following keys:"
+          cat .env.production | cut -d= -f1
 
       - name: Install dependencies and build
         working-directory: ./frontend
