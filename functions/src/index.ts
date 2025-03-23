@@ -46,8 +46,8 @@ export const api = https.onRequest({
       InvoiceOcrCsvController.performCsvDownload(req, res, secrets);
     } else if (req.path === "/invoice/document-ai/analyze") {
       DocumentAiApiController.performInvoiceOcr(req, res, secrets);
-    } else if (req.path === "/invoice/document-intelligence/analyze") {
-      DocumentIntelligenceApiController.performInvoiceOcr(req, res, secrets);
+    // } else if (req.path === "/invoice/document-intelligence/analyze") {
+    //   DocumentIntelligenceApiController.performInvoiceOcr(req, res, secrets);
     } else {
       res.status(404).send("Not Found");
     }
