@@ -2,21 +2,18 @@ import documentIntelligence, {
   DocumentIntelligenceClient,
   getLongRunningPoller,
   isUnexpected,
-  AnalyzeResultOperationOutput,
+  AnalyzeOperationOutput,
 } from "@azure-rest/ai-document-intelligence";
-import {AzureKeyCredential} from "@azure/core-auth";
-import {Secrets} from "../../schemas/secret";
+import {SecretParam} from "firebase-functions/lib/params/types";
 
 export class DocumentIntelligencePost {
   private client: DocumentIntelligenceClient;
 
-  constructor(secrets: Secrets) {
-    const endpoint = secrets.azureOcrEndpoint.value();
-    const key = secrets.azureOcrApiKey.value();
-    console.log("azureOcrEndpoint", endpoint);
-    console.log("azureOcrApiKey", key);
+  constructor(azureOcrApiKey: SecretParam, azureOcrEndpoint: SecretParam) {
+    const endpoint = azureOcrEndpoint;
+    const key = azureOcrApiKey;
 
-    this.client = documentIntelligence(endpoint, new AzureKeyCredential(key));
+    this.client = documentIntelligence(endpoint.value(), {key: key.value()});
   }
 
   async process(base64File: string) {
@@ -43,11 +40,10 @@ export class DocumentIntelligencePost {
         throw initialResponse.body.error;
       }
 
-      const poller = await getLongRunningPoller(this.client, initialResponse);
-      const response = (await poller.pollUntilDone())
-        .body as AnalyzeResultOperationOutput;
+      const poller = getLongRunningPoller(this.client, initialResponse);
+      const result = (await poller.pollUntilDone()).body as AnalyzeOperationOutput;
 
-      return response;
+      return result;
     } catch (error) {
       console.error("Document analysis failed:", error);
       throw error;

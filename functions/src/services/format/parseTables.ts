@@ -8,7 +8,7 @@ interface RowData {
 }
 
 export function extractTableData(tableData: any): TableData[] {
-  const tables = tableData?.analyzeResult?.tables || [];
+  const tables = tableData.analyzeResult?.tables || [];
   console.log(`テーブル数: ${tables.length}`);
 
   return tables.map((table: any, index: number) => {

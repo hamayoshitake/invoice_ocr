@@ -18,6 +18,7 @@ module.exports = {
     sourceType: "module",
   },
   ignorePatterns: [
+    "node_modules/**/*",
     "/lib/**/*",
     ".eslintrc.js",
   ],
@@ -32,5 +33,6 @@ module.exports = {
     "max-len": ["error", { "code": 200 }],
     "require-jsdoc": "off",
     "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-unused-vars": "off",
   },
 };

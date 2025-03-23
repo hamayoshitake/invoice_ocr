@@ -18,3 +18,5 @@ src/secretKeys/invoice-ocr-app-668f6-firebase-adminsdk-8saw5-e731b401ea.json
 lib/**/secretKeys/
 
 /emulator-data
+
+node_modules/

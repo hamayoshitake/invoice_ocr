@@ -29,6 +29,7 @@ if (process.env.FUNCTIONS_EMULATOR) {
 
 export const api = https.onRequest({
   cors: true,
+  timeoutSeconds: 600,
   secrets: [
     secrets.projectOcrId,
     secrets.location,
@@ -44,10 +45,9 @@ export const api = https.onRequest({
     if (req.path === "/csv/download") {
       InvoiceOcrCsvController.performCsvDownload(req, res, secrets);
     } else if (req.path === "/invoice/document-ai/analyze") {
-      console.log(secrets);
       DocumentAiApiController.performInvoiceOcr(req, res, secrets);
-    } else if (req.path === "/invoice/document-intelligence/analyze") {
-      DocumentIntelligenceApiController.performInvoiceOcr(req, res, secrets);
+    // } else if (req.path === "/invoice/document-intelligence/analyze") {
+    //   DocumentIntelligenceApiController.performInvoiceOcr(req, res, secrets);
     } else {
       res.status(404).send("Not Found");
     }
