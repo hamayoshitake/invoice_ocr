@@ -21,15 +21,15 @@ export const Phi4ApiController = {
     }
 
     try {
-      console.log("ファイルの読み込みを開始します");
       const fileBuffer = await new Promise<Buffer>((resolve, reject) => {
         const bb = busboy({headers: req.headers});
         let buffer: Buffer | null = null;
 
-        bb.on("file", (fieldname, file, {mimeType}) => {
-          console.log(`受信したファイル: ${fieldname}, MIMEタイプ: ${mimeType}`);
+        bb.on("file", (fieldname, file, info) => {
+          console.log(`ファイル受信: ${fieldname}, タイプ: ${info.mimeType}`);
 
-          if (mimeType !== "application/pdf") {
+          if (info.mimeType !== "application/pdf") {
+            file.resume();
             reject(new ValidationError("PDFファイルのみ対応しています"));
             return;
           }
@@ -55,7 +55,11 @@ export const Phi4ApiController = {
           reject(new Error("ファイル処理中にエラーが発生しました"));
         });
 
-        req.pipe(bb);
+        if (req.rawBody) {
+          bb.end(req.rawBody);
+        } else {
+          req.pipe(bb);
+        }
       });
 
       console.log("Document AI処理を開始します");
@@ -63,22 +67,26 @@ export const Phi4ApiController = {
       const documentAIService = new DocumentAIService();
       const result = await documentAIService.processDocument(base64File, secrets);
 
-      // Document AIの結果をログに出力
-      console.log("Document AI結果:", JSON.stringify(result.document, null, 2));
+      // // Document AIの結果をログに出力
+      // console.log("Document AI結果:", JSON.stringify(result.document, null, 2));
       await exportLocalStorageInvoiceData(result.document, "document_ai_results");
 
       console.log("Phi4処理を開始します");
       const invoiceData = await processPhi4InvoiceData(result.document);
 
-      // Phi4の結果をログに出力
-      console.log("Phi4分析結果:", JSON.stringify(invoiceData, null, 2));
+      // // Phi4の結果をログに出力
+      // console.log("Phi4分析結果:", JSON.stringify(invoiceData, null, 2));
       await exportLocalStorageInvoiceData(invoiceData, "phi4_results");
 
       // バリデーション
       console.log("バリデーションを実行します");
       const validationResult = InvoiceDataSchema.safeParse(invoiceData);
       if (!validationResult.success) {
-        throw new ValidationError(`バリデーションエラー: ${validationResult.error.message}`);
+        return res.status(400).json({
+          status: "error",
+          code: "VALIDATION_ERROR",
+          message: `バリデーションエラー: ${validationResult.error.message}`,
+        });
       }
 
       return res.status(200).json({

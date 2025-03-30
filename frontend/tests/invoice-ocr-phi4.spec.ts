@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test('請求書OCR（phi4）のE2Eテスト', async ({ page }) => {
+  // テスト全体のタイムアウトを設定
+  test.setTimeout(300000); // 5分
+
   // OCRページに移動
   await page.goto('http://localhost:5173/invoice/ocr');
   
@@ -23,14 +26,15 @@ test('請求書OCR（phi4）のE2Eテスト', async ({ page }) => {
 
   // APIリクエストの監視を開始
   const responsePromise = page.waitForResponse(
-    response => response.url().includes('/invoice/phi4/analyze') && response.status() === 200
+    response => response.url().includes('/invoice/phi4/analyze') && response.status() === 200,
+    { timeout: 180000 } // 3分
   );
 
   // 分析開始ボタンをクリック
   await analyzeButton.click();
 
-  // ローディング状態の確認
-  await expect(page.getByText('分析中...')).toBeVisible({ timeout: 30000 });
+  // ローディング状態の確認とスクリーンショット
+  await expect(page.getByText('分析中...')).toBeVisible({ timeout: 180000 });
 
   try {
     // APIレスポンスを待機
@@ -39,24 +43,63 @@ test('請求書OCR（phi4）のE2Eテスト', async ({ page }) => {
     
     // レスポンスの検証
     expect(responseData.status).toBe('success');
-    expect(responseData.analysis).toBeDefined();
+    expect(responseData.data).toBeDefined();
 
     // ローディング表示が消えるのを待機
-    await expect(page.getByText('分析中...')).not.toBeVisible({ timeout: 30000 });
+    await expect(page.getByText('分析中...')).not.toBeVisible({ timeout: 180000 });
 
     // 分析結果の表示を確認
-    await expect(page.getByText('分析結果')).toBeVisible();
-    await expect(page.locator('pre').filter({ hasText: responseData.analysis })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '分析結果' })).toBeVisible();
+    
+    // 各セクションの表示を確認
+    await expect(page.getByRole('heading', { name: '判断理由' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '請求元情報' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '請求先情報' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '請求書情報' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '金額情報' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '銀行情報' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '明細情報' })).toBeVisible();
+
+    // 分析結果表示後のスクリーンショット
+    await page.screenshot({ path: 'test-results/invoice-ocr-phi4-sections.png' });
+
+    // 主要なフィールドの値を確認
+    const payeeCompanyName = await page.getByLabel('会社名').first();
+    await expect(payeeCompanyName).toBeVisible();
+    expect(await payeeCompanyName.inputValue()).not.toBe('');
+
+    const payerCompanyName = await page.getByLabel('会社名').nth(1);
+    await expect(payerCompanyName).toBeVisible();
+    expect(await payerCompanyName.inputValue()).not.toBe('');
+
+    // フィールド値確認後のスクリーンショット
+    await page.screenshot({ path: 'test-results/invoice-ocr-phi4-fields.png' });
+
+    // 金額情報の確認
+    const totalAmount = await page.getByLabel('合計金額');
+    await expect(totalAmount).toBeVisible();
+    expect(await totalAmount.inputValue()).not.toBe('0');
+
+    // 明細情報の確認
+    const detailsTable = await page.locator('table');
+    await expect(detailsTable).toBeVisible();
+    const detailRows = await page.locator('tbody tr').count();
+    expect(detailRows).toBeGreaterThan(0);
 
     // エラー表示がないことを確認
     await expect(page.getByRole('alert')).not.toBeVisible();
 
-    // スクリーンショットを撮影（結果確認用）
+    // 最終結果のスクリーンショット
     await page.screenshot({ path: 'test-results/invoice-ocr-phi4-result.png' });
   } catch (error) {
     console.error('APIレスポンスの処理中にエラーが発生しました:', error);
-    await expect(page.getByRole('alert')).toBeVisible();
+    
+    // エラー状態のスクリーンショット
     await page.screenshot({ path: 'test-results/invoice-ocr-phi4-error.png' });
+    
+    // エラー表示の確認
+    await expect(page.getByRole('alert')).toBeVisible();
+    throw error;
   }
 });
 
@@ -83,6 +126,6 @@ test('不正なファイルタイプのエラーハンドリング（phi4）', a
   await expect(page.getByRole('alert')).toBeVisible();
   await expect(page.getByRole('alert')).toContainText('PDFファイルを選択してください');
 
-  // スクリーンショットを撮影（エラー確認用）
-  await page.screenshot({ path: 'test-results/invoice-ocr-phi4-error.png' });
+  // エラー状態のスクリーンショット
+  await page.screenshot({ path: 'test-results/invoice-ocr-phi4-invalid-error.png' });
 });

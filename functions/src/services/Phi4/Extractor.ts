@@ -4,7 +4,7 @@ import {InvoiceData, InvoiceDataSchema} from "../../schemas/InvoiceData";
 import {exportLocalStorageInvoiceData} from "../ExportLocalStorageInvoiceData";
 import axios from "axios";
 
-export class Phi4Extractor extends BaseInvoiceDataExtractor {
+export class Extractor extends BaseInvoiceDataExtractor {
   protected createPrompt(params: ExtractDataParams): string {
     return `
       以下の請求書のテキストから、JSONフォーマットで情報を抽出してください。
@@ -40,60 +40,49 @@ export class Phi4Extractor extends BaseInvoiceDataExtractor {
         不要な加工や解釈を避ける
         表記ゆれの統一は最小限に留める
 
+      4. 重要：レスポンスのフォーマットについて
+        - ネストされた構造は使用せず、すべてのフィールドをトップレベルに配置してください
+        - 例えば、payee_information.company_name ではなく、直接 payee_company_name として返してください
+        - 同様に、invoice_information.total_amount ではなく、直接 total_amount として返してください
+
       必須項目および任意項目を含む全ての情報を抽出してください：
-
-      請求元情報:
-      - payee_company_name: 請求元会社名 (必須)
-      - payee_postal_code: 請求元郵便番号 (必須)
-      - payee_address: 請求元住所 (必須)
-      - payee_tel: 請求元電話番号
-      - payee_email: 請求元メールアドレス
-      - payee_person_name: 請求元担当者名
-
-      請求先情報:
-      - payer_company_name: 請求先会社名/個人名 (必須)
-      - payer_address: 請求先住所
-      - payer_postal_code: 請求先郵便番号
-      - payer_person_name: 請求先担当者名
-
-      請求書情報:
-      - invoice_date: 請求日
-      - due_date: 支払期日
-      - invoice_number: 請求書番号
-      - total_amount: 合計金額 (必須)
-      - sub_total_amount: 小計 (必須)
-      - total_tax_amount: 消費税合計 (必須)
-
-      銀行情報:
-      - bank_name: 銀行名
-      - bank_account_name: 口座名義
-      - bank_store_type: 支店名/本店
-      - bank_type: 口座種別（普通預金/当座預金,普通/当座）
-      - bank_number: 口座番号
-
-      明細情報 (invoice_details配列):
-      - item_date: 日付 (必須)
-      - item_description: 項目説明 (必須)
-      - item_amount: 金額 (必須)
-      - item_quantity: 数量 (必須)
-      - item_unit_price: 単価 (必須)
-
-      備考：
-      - memo: 備考欄のテキスト
-
-      全ての金額は数値として返してください（カンマや通貨記号は除去）。
-      日付は "YYYY-MM-DD" 形式で返してください。
-      見つからない項目は null として返してください。
-
-      判別プロセスの説明も含めて、以下のような形式でJSONを返してください：
 
       {
         "analysis": {
           "payee_identification_reason": "この会社を請求元と判断した理由",
           "payer_identification_reason": "この会社を請求先と判断した理由"
         },
-        // 通常のデータフィールド
-        ...
+        "payee_company_name": "string (必須)",
+        "payee_postal_code": "string (必須)",
+        "payee_address": "string (必須)",
+        "payee_tel": "string | null",
+        "payee_email": "string | null",
+        "payee_person_name": "string | null",
+        "payer_company_name": "string (必須)",
+        "payer_address": "string | null",
+        "payer_postal_code": "string | null",
+        "payer_person_name": "string | null",
+        "invoice_date": "string | null",
+        "due_date": "string | null",
+        "invoice_number": "string | null",
+        "total_amount": "number (必須)",
+        "sub_total_amount": "number (必須)",
+        "total_tax_amount": "number (必須)",
+        "bank_name": "string | null",
+        "bank_account_name": "string | null",
+        "bank_store_type": "string | null",
+        "bank_type": "string | null",
+        "bank_number": "string | null",
+        "invoice_details": [
+          {
+            "item_date": "string (必須)",
+            "item_description": "string (必須)",
+            "item_amount": "number (必須)",
+            "item_quantity": "number (必須)",
+            "item_unit_price": "number (必須)"
+          }
+        ],
+        "memo": "string | null"
       }
 
       テキスト:
@@ -115,19 +104,145 @@ export class Phi4Extractor extends BaseInvoiceDataExtractor {
           throw new Error("Phi4 APIでの分析に失敗しました");
         }
 
-        const invoiceData = response.data.analysis;
+        console.log("Phi4 APIレスポンス:", JSON.stringify(response.data, null, 2));
+
+        // レスポンスデータを解析
+        const rawData = response.data.analysis;
+        let invoiceData;
+        
+        try {
+          if (typeof rawData === "string") {
+            // Markdownブロックを探す
+            const jsonMatch = rawData.match(/```json\n([\s\S]*?)\n```/);
+            if (jsonMatch && jsonMatch[1]) {
+              // Markdownブロック内のJSONをパース
+              invoiceData = JSON.parse(jsonMatch[1]);
+            } else {
+              // 直接JSONとしてパース
+              invoiceData = JSON.parse(rawData);
+            }
+          } else {
+            invoiceData = rawData;
+          }
+
+          // 必須フィールドの存在確認と値の設定
+          if (!invoiceData.payee_company_name && invoiceData.payee?.company_name) {
+            invoiceData.payee_company_name = invoiceData.payee.company_name;
+          }
+          if (!invoiceData.payee_address && invoiceData.payee?.address) {
+            invoiceData.payee_address = invoiceData.payee.address;
+          }
+          if (!invoiceData.payee_postal_code && invoiceData.payee?.postal_code) {
+            invoiceData.payee_postal_code = invoiceData.payee.postal_code;
+          }
+          if (!invoiceData.payee_person_name && invoiceData.payee?.person_name) {
+            invoiceData.payee_person_name = invoiceData.payee.person_name;
+          }
+
+          // 請求先情報
+          if (!invoiceData.payer_company_name && (invoiceData.payer?.company_name || invoiceData.payer?.individual_name)) {
+            invoiceData.payer_company_name = invoiceData.payer.company_name || invoiceData.payer.individual_name;
+          }
+          if (!invoiceData.payer_address && invoiceData.payer?.address) {
+            invoiceData.payer_address = invoiceData.payer.address;
+          }
+          if (!invoiceData.payer_postal_code && invoiceData.payer?.postal_code) {
+            invoiceData.payer_postal_code = invoiceData.payer.postal_code;
+          }
+
+          // 請求書情報
+          if (!invoiceData.invoice_date && invoiceData.invoice_information?.invoice_date) {
+            invoiceData.invoice_date = invoiceData.invoice_information.invoice_date;
+          }
+          if (!invoiceData.due_date && invoiceData.invoice_information?.due_date) {
+            invoiceData.due_date = invoiceData.invoice_information.due_date;
+          }
+          if (!invoiceData.invoice_number && invoiceData.invoice_information?.invoice_number) {
+            invoiceData.invoice_number = invoiceData.invoice_information.invoice_number;
+          }
+          if (!invoiceData.total_amount && invoiceData.invoice_information?.total_amount) {
+            invoiceData.total_amount = invoiceData.invoice_information.total_amount;
+          }
+          if (!invoiceData.sub_total_amount && invoiceData.invoice_information?.sub_total_amount) {
+            invoiceData.sub_total_amount = invoiceData.invoice_information.sub_total_amount;
+          }
+          if (!invoiceData.total_tax_amount && invoiceData.invoice_information?.total_tax_amount) {
+            invoiceData.total_tax_amount = invoiceData.invoice_information.total_tax_amount;
+          }
+
+          // 銀行情報
+          if (!invoiceData.bank_name && invoiceData.bank_information?.bank_name) {
+            invoiceData.bank_name = invoiceData.bank_information.bank_name;
+          }
+          if (!invoiceData.bank_account_name && invoiceData.bank_information?.bank_account_name) {
+            invoiceData.bank_account_name = invoiceData.bank_information.bank_account_name;
+          }
+          if (!invoiceData.bank_store_type && invoiceData.bank_information?.bank_store_type) {
+            invoiceData.bank_store_type = invoiceData.bank_information.bank_store_type;
+          }
+          if (!invoiceData.bank_type && invoiceData.bank_information?.bank_type) {
+            invoiceData.bank_type = invoiceData.bank_information.bank_type;
+          }
+          if (!invoiceData.bank_number && invoiceData.bank_information?.bank_number) {
+            invoiceData.bank_number = invoiceData.bank_information.bank_number;
+          }
+
+          // 必須フィールドのデフォルト値設定
+          invoiceData.payee_company_name = invoiceData.payee_company_name || "不明";
+          invoiceData.payee_postal_code = invoiceData.payee_postal_code || "不明";
+          invoiceData.payee_address = invoiceData.payee_address || "不明";
+          invoiceData.payer_company_name = invoiceData.payer_company_name || "不明";
+          invoiceData.total_amount = invoiceData.total_amount || 0;
+          invoiceData.sub_total_amount = invoiceData.sub_total_amount || 0;
+          invoiceData.total_tax_amount = invoiceData.total_tax_amount || 0;
+
+        } catch (error) {
+          console.error("JSONパースエラー:", error);
+          throw new Error("レスポンスデータの解析に失敗しました");
+        }
+
+        console.log("パース後のデータ:", JSON.stringify(invoiceData, null, 2));
+
+        // ネストされた構造を平坦な構造に変換
+        const flattenedData = {
+          analysis: invoiceData.analysis,
+          payee_company_name: invoiceData.payee_company_name || invoiceData.payee_information?.payee_company_name || "不明",
+          payee_address: invoiceData.payee_address || invoiceData.payee_information?.payee_address || "不明",
+          payee_postal_code: invoiceData.payee_postal_code || invoiceData.payee_information?.payee_postal_code || "不明",
+          payee_tel: invoiceData.payee_tel || invoiceData.payee_information?.payee_tel || null,
+          payee_email: invoiceData.payee_email || invoiceData.payee_information?.payee_email || null,
+          payee_person_name: invoiceData.payee_person_name || invoiceData.payee_information?.payee_person_name || null,
+          payer_company_name: invoiceData.payer_company_name || invoiceData.payer_information?.payer_company_name || "不明",
+          payer_address: invoiceData.payer_address || invoiceData.payer_information?.payer_address || null,
+          payer_postal_code: invoiceData.payer_postal_code || invoiceData.payer_information?.payer_postal_code || null,
+          payer_person_name: invoiceData.payer_person_name || invoiceData.payer_information?.payer_person_name || null,
+          invoice_date: invoiceData.invoice_date || invoiceData.invoice_information?.invoice_date || null,
+          due_date: invoiceData.due_date || invoiceData.invoice_information?.due_date || null,
+          invoice_number: invoiceData.invoice_number || invoiceData.invoice_information?.invoice_number || null,
+          total_amount: invoiceData.total_amount || invoiceData.invoice_information?.total_amount || 0,
+          sub_total_amount: invoiceData.sub_total_amount || invoiceData.invoice_information?.sub_total_amount || 0,
+          total_tax_amount: invoiceData.total_tax_amount || invoiceData.invoice_information?.total_tax_amount || 0,
+          bank_name: invoiceData.bank_name || invoiceData.bank_information?.bank_name || null,
+          bank_account_name: invoiceData.bank_account_name || invoiceData.bank_information?.bank_account_name || null,
+          bank_store_type: invoiceData.bank_store_type || invoiceData.bank_information?.bank_store_type || null,
+          bank_type: invoiceData.bank_type || invoiceData.bank_information?.bank_type || null,
+          bank_number: invoiceData.bank_number || invoiceData.bank_information?.bank_number || null,
+          invoice_details: invoiceData.invoice_details || [],
+          memo: invoiceData.memo || null,
+        };
+
+        console.log("変換後のデータ:", JSON.stringify(flattenedData, null, 2));
 
         // LLMの分析結果を保存
-        await exportLocalStorageInvoiceData(JSON.stringify(invoiceData), "phi4_analysis_results");
+        await exportLocalStorageInvoiceData(flattenedData, "phi4_analysis_results");
 
         // バリデーション
-        const validationResult = InvoiceDataSchema.safeParse(invoiceData);
+        const validationResult = InvoiceDataSchema.safeParse(flattenedData);
         if (!validationResult.success) {
           throw new Error(`バリデーションエラー: ${validationResult.error.message}`);
         }
 
-
-        return invoiceData;
+        return flattenedData;
       } catch (error) {
         const err = error as Error;
         lastError = err;
@@ -146,7 +261,7 @@ export class Phi4Extractor extends BaseInvoiceDataExtractor {
 
 export async function processPhi4InvoiceData(ocrResponse: any) {
   try {
-    const extractor = new Phi4Extractor();
+    const extractor = new Extractor();
     return await extractor.extractData({
       text: ocrResponse.text,
     });
