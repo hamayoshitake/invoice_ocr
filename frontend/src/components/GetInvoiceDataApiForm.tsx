@@ -12,10 +12,9 @@ type ResponseData = {
 
 interface GetInvoiceDataApiFormProps {
   service: 'ai' | 'intelligence';
-  onAnalysis?: (text: string) => void;
 }
 
-const GetInvoiceDataApiForm = ({service, onAnalysis}: GetInvoiceDataApiFormProps) => {
+const GetInvoiceDataApiForm = ({service}: GetInvoiceDataApiFormProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -76,11 +75,6 @@ const GetInvoiceDataApiForm = ({service, onAnalysis}: GetInvoiceDataApiFormProps
       const responseData = await response.data as ResponseData;
       const responseInvoiceData = await responseData.data as InvoiceData;
       setInvoiceData(responseInvoiceData);
-
-      // Phi-4分析用にテキストを送信
-      if (onAnalysis && responseInvoiceData.analysis) {
-        onAnalysis(JSON.stringify(responseInvoiceData.analysis));
-      }
 
       setMessage({ text: '画像の処理が成功しました', isError: false });
     } catch (error: any) {
