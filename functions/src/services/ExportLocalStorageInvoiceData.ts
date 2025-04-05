@@ -5,7 +5,7 @@ import {LocalStorageError} from "../errors/CustomErrors";
 
 export async function exportLocalStorageInvoiceData(data: any, savePath = "invoiceData", isJson = true) {
   // 一時ディレクトリを使用
-  const storagePath = path.join(__dirname, `../../storages/${savePath}`);
+  const storagePath = path.join(__dirname, `../../storage/${savePath}`);
   console.log("Storage path:", storagePath);
 
   // ディレクトリが存在しない場合は作成

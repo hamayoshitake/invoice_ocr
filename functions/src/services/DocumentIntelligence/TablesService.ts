@@ -121,25 +121,26 @@ export class TablesService {
     // ヘッダー行の検証
     const header = data.tableData[0].content;
     // 日付関連の正規表現
-    const dateRegex = /(日付|取引日|日時|年月日)/;
+    const dateRegex = /(日付|取引日|日時|年月日|納品日)/;
     const hasDateColumn = dateRegex.test(header);
 
     // 項目関連の正規表現
-    const itemRegex = /(項目|品目|商品|内容)/;
+    const itemRegex = /(項目|品目|商品|内容|納品)/;
     const hasItemColumn = itemRegex.test(header);
 
     // その他の必須項目
-    const amountRegex = /金額/;
+    const amountRegex = /(金額|価格)/;
     const quantityRegex = /数量/;
     const unitPriceRegex = /単価/;
+    const unitRegex = /単位/;
 
     const hasAmount = amountRegex.test(header);
     const hasQuantity = quantityRegex.test(header);
     const hasUnitPrice = unitPriceRegex.test(header);
-
-    if (!hasDateColumn || !hasItemColumn || !hasAmount || !hasQuantity || !hasUnitPrice) {
+    const hasUnit = unitRegex.test(header);
+    if (!hasDateColumn || !hasItemColumn || !hasAmount || !hasQuantity || !hasUnitPrice || !hasUnit) {
       console.log("ヘッダー行が不正です");
-      console.log(`日付カラム: ${hasDateColumn}, 項目カラム: ${hasItemColumn}, 金額: ${hasAmount}, 数量: ${hasQuantity}, 単価: ${hasUnitPrice}`);
+      console.log(`日付カラム: ${hasDateColumn}, 項目カラム: ${hasItemColumn}, 金額: ${hasAmount}, 数量: ${hasQuantity}, 単価: ${hasUnitPrice}, 単位: ${hasUnit}`);
       return false;
     }
 

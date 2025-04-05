@@ -75,6 +75,7 @@ const GetInvoiceDataApiForm = ({service}: GetInvoiceDataApiFormProps) => {
       const responseData = await response.data as ResponseData;
       const responseInvoiceData = await responseData.data as InvoiceData;
       setInvoiceData(responseInvoiceData);
+
       setMessage({ text: '画像の処理が成功しました', isError: false });
     } catch (error: any) {
       console.error(error);
@@ -119,7 +120,10 @@ const GetInvoiceDataApiForm = ({service}: GetInvoiceDataApiFormProps) => {
       <h3>請求書OCRテスト</h3>
 
       {message && (
-        <div className={`alert ${message.isError ? 'alert-danger' : 'alert-success'} mt-3`}>
+        <div
+          className={`alert ${message.isError ? 'alert-danger' : 'alert-success'}`}
+          data-testid={message.isError ? 'error-message' : 'success-message'}
+        >
           {message.text}
         </div>
       )}
@@ -162,7 +166,7 @@ const GetInvoiceDataApiForm = ({service}: GetInvoiceDataApiFormProps) => {
         </div>
 
         {/* 右側：フォームデータ */}
-        <div className="form-data">
+        <div className="form-data" data-testid="result-container">
           {generalFormData && (
             <div className="invoice-data">
               <h3>請求書データ</h3>
@@ -182,6 +186,7 @@ const GetInvoiceDataApiForm = ({service}: GetInvoiceDataApiFormProps) => {
                           e.target.type === 'number' ? Number(e.target.value) : e.target.value
                         )}
                         className="form-control"
+                        aria-label={label}
                       />
                     </div>
                   );
@@ -189,7 +194,7 @@ const GetInvoiceDataApiForm = ({service}: GetInvoiceDataApiFormProps) => {
               </div>
 
               {/* 明細テーブル */}
-              <div className="invoice-details mt-4">
+              <div className="invoice-details mt-4" data-testid="invoice-details">
                 <h4>請求明細</h4>
                 <div className="table-responsive">
                   <table className="table table-bordered">
@@ -211,6 +216,7 @@ const GetInvoiceDataApiForm = ({service}: GetInvoiceDataApiFormProps) => {
                               value={detail.item_date}
                               onChange={(e) => handleDetailChange(index, 'item_date', e.target.value)}
                               className="form-control form-control-sm"
+                              data-testid="item-date"
                             />
                           </td>
                           <td>
@@ -219,6 +225,7 @@ const GetInvoiceDataApiForm = ({service}: GetInvoiceDataApiFormProps) => {
                               value={detail.item_description}
                               onChange={(e) => handleDetailChange(index, 'item_description', e.target.value)}
                               className="form-control form-control-sm"
+                              data-testid="item-description"
                             />
                           </td>
                           <td>
@@ -227,6 +234,7 @@ const GetInvoiceDataApiForm = ({service}: GetInvoiceDataApiFormProps) => {
                               value={detail.item_quantity}
                               onChange={(e) => handleDetailChange(index, 'item_quantity', Number(e.target.value))}
                               className="form-control form-control-sm"
+                              data-testid="item-quantity"
                             />
                           </td>
                           <td>
@@ -235,6 +243,7 @@ const GetInvoiceDataApiForm = ({service}: GetInvoiceDataApiFormProps) => {
                               value={detail.item_unit_price}
                               onChange={(e) => handleDetailChange(index, 'item_unit_price', Number(e.target.value))}
                               className="form-control form-control-sm"
+                              data-testid="item-unit-price"
                             />
                           </td>
                           <td>
@@ -243,6 +252,7 @@ const GetInvoiceDataApiForm = ({service}: GetInvoiceDataApiFormProps) => {
                               value={detail.item_amount}
                               onChange={(e) => handleDetailChange(index, 'item_amount', Number(e.target.value))}
                               className="form-control form-control-sm"
+                              data-testid="item-amount"
                             />
                           </td>
                         </tr>
@@ -257,7 +267,7 @@ const GetInvoiceDataApiForm = ({service}: GetInvoiceDataApiFormProps) => {
       </div>
 
       {isLoading && (
-        <div className="loading-overlay">
+        <div className="loading-overlay" data-testid="loading-indicator">
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>

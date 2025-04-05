@@ -8,6 +8,7 @@ import {DocumentIntelligenceApiController} from "./controllers/DocumentIntellige
 import {validateApiKey} from "./middleware/apiKeyAuth";
 import {logApiAccess} from "./services/operation/ApiLogger";
 import {ApiKeyCreateContoroller} from "./controllers/ApiKeyCreateContoroller";
+import {Phi4ApiController} from "./controllers/Phi4ApiController";
 
 setGlobalOptions({
   region: "asia-northeast1",
@@ -41,17 +42,19 @@ export const api = https.onRequest({
   invoker: "public",
 }, async (req, res) => {
   const startTime = Date.now();
-  await validateApiKey(req, res, () => {
-    if (req.path === "/csv/download") {
-      InvoiceOcrCsvController.performCsvDownload(req, res, secrets);
-    } else if (req.path === "/invoice/document-ai/analyze") {
-      DocumentAiApiController.performInvoiceOcr(req, res, secrets);
-    // } else if (req.path === "/invoice/document-intelligence/analyze") {
-    //   DocumentIntelligenceApiController.performInvoiceOcr(req, res, secrets);
-    } else {
-      res.status(404).send("Not Found");
-    }
-  });
+  // await validateApiKey(req, res, () => {
+  if (req.path === "/csv/download") {
+    InvoiceOcrCsvController.performCsvDownload(req, res, secrets);
+  } else if (req.path === "/invoice/document-ai/analyze") {
+    DocumentAiApiController.performInvoiceOcr(req, res, secrets);
+  } else if (req.path === "/invoice/phi4/analyze") {
+    Phi4ApiController.performInvoiceOcr(req, res, secrets);
+  } else if (req.path === "/invoice/document-intelligence/analyze") {
+    DocumentIntelligenceApiController.performInvoiceOcr(req, res, secrets);
+  } else {
+    res.status(404).send("Not Found");
+  }
+  // });
 
   // ログ記録
   await logApiAccess(req, res, startTime);
