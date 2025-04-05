@@ -96,7 +96,7 @@ export class Extractor extends BaseInvoiceDataExtractor {
 
     while (attempts < this.maxRetries) {
       try {
-        const response = await axios.post("http://localhost:8080/analyze-invoice", {
+        const response = await axios.post("http://localhost:8080/phi4/analyze-invoice", {
           text: this.createPrompt(params),
         });
 
@@ -109,7 +109,7 @@ export class Extractor extends BaseInvoiceDataExtractor {
         // レスポンスデータを解析
         const rawData = response.data.analysis;
         let invoiceData;
-        
+
         try {
           if (typeof rawData === "string") {
             // Markdownブロックを探す
@@ -195,7 +195,6 @@ export class Extractor extends BaseInvoiceDataExtractor {
           invoiceData.total_amount = invoiceData.total_amount || 0;
           invoiceData.sub_total_amount = invoiceData.sub_total_amount || 0;
           invoiceData.total_tax_amount = invoiceData.total_tax_amount || 0;
-
         } catch (error) {
           console.error("JSONパースエラー:", error);
           throw new Error("レスポンスデータの解析に失敗しました");

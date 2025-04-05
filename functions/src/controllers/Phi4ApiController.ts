@@ -68,14 +68,12 @@ export const Phi4ApiController = {
       const result = await documentAIService.processDocument(base64File, secrets);
 
       // // Document AIの結果をログに出力
-      // console.log("Document AI結果:", JSON.stringify(result.document, null, 2));
       await exportLocalStorageInvoiceData(result.document, "document_ai_results");
 
       console.log("Phi4処理を開始します");
       const invoiceData = await processPhi4InvoiceData(result.document);
 
       // // Phi4の結果をログに出力
-      // console.log("Phi4分析結果:", JSON.stringify(invoiceData, null, 2));
       await exportLocalStorageInvoiceData(invoiceData, "phi4_results");
 
       // バリデーション

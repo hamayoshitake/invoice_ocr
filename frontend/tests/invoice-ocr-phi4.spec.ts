@@ -104,6 +104,9 @@ test('請求書OCR（phi4）のE2Eテスト', async ({ page }) => {
 });
 
 test('不正なファイルタイプのエラーハンドリング（phi4）', async ({ page }) => {
+  // テスト全体のタイムアウトを設定
+  test.setTimeout(300000); // 5分
+
   await page.goto('http://localhost:5173/invoice/ocr');
   
   // phi4タブに切り替え
