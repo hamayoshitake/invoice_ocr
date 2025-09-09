@@ -7,7 +7,7 @@ import { test, expect } from '@playwright/test';
 test.describe('CSVダウンロード機能テスト', () => {
   test.beforeEach(async ({ page }) => {
     // サーバーが起動していることを確認（ポート5174を使用）
-    await page.goto('http://localhost:5174');
+    await page.goto('http://localhost:5173');
     await expect(page).toHaveTitle(/Vite/);
   });
 
