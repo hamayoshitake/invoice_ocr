@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import axios from 'axios';
 import '../styles/component/DownloadInvoiceCsvForm.scss';
 

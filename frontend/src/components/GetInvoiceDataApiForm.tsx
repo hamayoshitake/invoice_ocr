@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/component/GetInvoiceDataApiForm.scss';
 import { InvoiceData, InvoiceDetail } from '../types/InvoiceData';
 import { INVOICE_FIELD_LABELS, DisplayFields } from '../constants/labels/invoiceFieldLabels';
-import { useEffect } from 'react';
 
 type ResponseData = {
   status: string;
