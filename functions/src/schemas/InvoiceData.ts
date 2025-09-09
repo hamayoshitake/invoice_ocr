@@ -44,8 +44,8 @@ const InvoiceDetailSchema = z.object({
 
 export const InvoiceDataSchema = z.object({
   payee_company_name: z.string(),
-  payee_postal_code: z.string(),
-  payee_address: z.string(),
+  payee_postal_code: z.string().nullable().transform((v) => v ?? ""),
+  payee_address: z.string().nullable().transform((v) => v ?? ""),
   payee_tel: z.string().nullable().optional(),
   payee_email: z.string().nullable().optional(),
   payee_person_name: z.string().nullable().optional(),

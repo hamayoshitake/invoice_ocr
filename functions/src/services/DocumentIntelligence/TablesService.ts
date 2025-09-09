@@ -138,7 +138,7 @@ export class TablesService {
     const hasQuantity = quantityRegex.test(header);
     const hasUnitPrice = unitPriceRegex.test(header);
     const hasUnit = unitRegex.test(header);
-    if (!hasDateColumn || !hasItemColumn || !hasAmount || !hasQuantity || !hasUnitPrice || !hasUnit) {
+    if (!hasDateColumn || !hasItemColumn || !hasAmount || !hasQuantity || !hasUnitPrice) {
       console.log("ヘッダー行が不正です");
       console.log(`日付カラム: ${hasDateColumn}, 項目カラム: ${hasItemColumn}, 金額: ${hasAmount}, 数量: ${hasQuantity}, 単価: ${hasUnitPrice}, 単位: ${hasUnit}`);
       return false;
