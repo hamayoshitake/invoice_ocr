@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import * as React from 'react';
 import axios from 'axios';
 import '../styles/component/GetInvoiceDataApiForm.scss';
 import { InvoiceData, InvoiceDetail } from '../types/InvoiceData';
@@ -14,12 +14,12 @@ interface GetInvoiceDataApiFormProps {
 }
 
 const GetInvoiceDataApiForm = ({service}: GetInvoiceDataApiFormProps) => {
-  const [file, setFile] = useState<File | null>(null);
-  const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [invoiceData, setInvoiceData] = useState<InvoiceData | null>(null)
-  const [generalFormData, setGeneralFormData] = useState<DisplayFields | null>(null)
-  const [detailFormData, setDetailFormData] = useState<InvoiceDetail[] | null>(null)
+  const [file, setFile] = React.useState<File | null>(null);
+  const [message, setMessage] = React.useState<{ text: string; isError: boolean } | null>(null);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [invoiceData, setInvoiceData] = React.useState<InvoiceData | null>(null)
+  const [generalFormData, setGeneralFormData] = React.useState<DisplayFields | null>(null)
+  const [detailFormData, setDetailFormData] = React.useState<InvoiceDetail[] | null>(null)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -101,7 +101,7 @@ const GetInvoiceDataApiForm = ({service}: GetInvoiceDataApiFormProps) => {
     }
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (invoiceData) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { invoice_details, analysis, ...displayData } = invoiceData;
@@ -110,7 +110,7 @@ const GetInvoiceDataApiForm = ({service}: GetInvoiceDataApiFormProps) => {
     }
   }, [invoiceData]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     setMessage(null);
   }, []);
 

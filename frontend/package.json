@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "VITE_NODE_ENV=production vite build --mode production",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "preview": "vite preview"

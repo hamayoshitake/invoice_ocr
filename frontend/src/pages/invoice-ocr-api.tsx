@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import * as React from 'react';
 import { Box, Tab, Tabs } from '@mui/material';
 import GetInvoiceDataApiForm from '../components/GetInvoiceDataApiForm';
 import { Phi4Analysis } from '../components/Phi4Analysis';
@@ -43,7 +43,7 @@ function a11yProps(index: number) {
 }
 
 export default function InvoiceOcr() {
-  const [value, setValue] = useState(0);
+  const [value, setValue] = React.useState(0);
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
