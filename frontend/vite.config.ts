@@ -21,14 +21,13 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['react-pdf', 'pdfjs-dist']
+    include: ['react-pdf', 'pdfjs-dist', '@emotion/react', '@emotion/styled']
   },
   build: {
     rollupOptions: {
       external: (id) => {
-        // Externalize problematic dependencies
-        return id.includes('hoist-non-react-statics') || 
-               id.includes('@emotion/react');
+        // Only externalize hoist-non-react-statics, but include @emotion/react in bundle
+        return id.includes('hoist-non-react-statics');
       },
       onwarn(warning, warn) {
         // Suppress all export-related warnings
