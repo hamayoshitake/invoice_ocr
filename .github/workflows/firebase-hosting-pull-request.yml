@@ -23,6 +23,8 @@ jobs:
         run: |
           echo "VITE_APP_API_KEY='${{ secrets.VITE_APP_API_KEY }}'" > .env
           echo "VITE_APP_API_URL='${{ secrets.VITE_APP_API_URL }}'" >> .env
+          echo "VITE_ENABLE_DOCUMENT_INTELLIGENCE=true" >> .env
+          echo "VITE_ENABLE_PHI4=true" >> .env
 
           # .envファイルが作成されたか確認（機密情報は表示しない）
           echo "Created .env file with following keys:"

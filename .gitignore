@@ -76,3 +76,7 @@ functions/.runtimeconfig.json
 storage.rules
 
 /emulator-data
+
+/frontend/test-results/
+/frontend/playwright-report/
+/frontend/blob-report/
