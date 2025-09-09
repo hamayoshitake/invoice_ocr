@@ -1,0 +1,66 @@
+{
+  "hosting": {
+    "public": "frontend/dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "function": "api"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "functions": [
+    {
+      "timeoutSeconds": 600,
+      "memory": "4GiB",
+      "source": "functions",
+      "runtime": "nodejs20",
+      "region": "asia-northeast1",
+      "codebase": "default",
+      "docker": {
+        "registry": "asia-northeast1-docker.pkg.dev/invoice-ocr-app-668f6/gcf-artifacts"
+      },
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local",
+        "storage/**"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint",
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ],
+      "egress": {
+        "allowed": [
+          "*.cognitiveservices.azure.com",
+          "*.api.cognitive.microsoft.com",
+          "private-ranges"
+        ]
+      }
+    }
+  ],
+  "emulators": {
+    "functions": {
+      "port": 5001
+    },
+    "storage": {
+      "port": 9199
+    },
+    "firestore": {
+      "port": 8081
+    }
+  },
+  "storage": {
+    "rules": "storage.rules"
+  }
+}
