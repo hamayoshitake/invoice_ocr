@@ -1,7 +1,13 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Box, Tab, Tabs } from '@mui/material';
 import GetInvoiceDataApiForm from '../components/GetInvoiceDataApiForm';
 import { Phi4Analysis } from '../components/Phi4Analysis';
+
+// 環境変数から機能の有効/無効を取得
+// 開発環境（localhost）では全機能有効、本番環境では Document AI のみ有効
+const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const ENABLE_DOCUMENT_INTELLIGENCE = isDevelopment || import.meta.env.VITE_ENABLE_DOCUMENT_INTELLIGENCE === 'true';
+const ENABLE_PHI4 = isDevelopment || import.meta.env.VITE_ENABLE_PHI4 === 'true';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -38,34 +44,33 @@ function a11yProps(index: number) {
 
 export default function InvoiceOcr() {
   const [value, setValue] = useState(0);
-  const [documentText, setDocumentText] = useState<string>('');
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
-  const handleDocumentAnalysis = (text: string) => {
-    setDocumentText(text);
-  };
+  // タブの設定を動的に生成
+  const tabs = [
+    { label: "Document AI", component: <GetInvoiceDataApiForm service="ai" />, enabled: true },
+    { label: "Document Intelligence", component: <GetInvoiceDataApiForm service="intelligence" />, enabled: ENABLE_DOCUMENT_INTELLIGENCE },
+    { label: "Phi-4 分析", component: <Phi4Analysis />, enabled: ENABLE_PHI4 }
+  ].filter(tab => tab.enabled);
+
 
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-          <Tab label="Document AI" {...a11yProps(0)} />
-          <Tab label="Document Intelligence" {...a11yProps(1)} />
-          <Tab label="Phi-4 分析" {...a11yProps(2)} />
+          {tabs.map((tab, index) => (
+            <Tab key={index} label={tab.label} {...a11yProps(index)} />
+          ))}
         </Tabs>
       </Box>
-      <TabPanel value={value} index={0}>
-        <GetInvoiceDataApiForm service="ai" />
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-        <GetInvoiceDataApiForm service="intelligence" />
-      </TabPanel>
-      <TabPanel value={value} index={2}>
-        <Phi4Analysis documentText={documentText} />
-      </TabPanel>
+      {tabs.map((tab, index) => (
+        <TabPanel key={index} value={value} index={index}>
+          {tab.component}
+        </TabPanel>
+      ))}
     </Box>
   );
 }
