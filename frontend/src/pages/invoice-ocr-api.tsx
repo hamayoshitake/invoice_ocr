@@ -58,10 +58,10 @@ export default function InvoiceOcr() {
         </Tabs>
       </Box>
       <TabPanel value={value} index={0}>
-        <GetInvoiceDataApiForm service="ai" onAnalysis={handleDocumentAnalysis} />
+        <GetInvoiceDataApiForm service="ai" />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        <GetInvoiceDataApiForm service="intelligence" onAnalysis={handleDocumentAnalysis} />
+        <GetInvoiceDataApiForm service="intelligence" />
       </TabPanel>
       <TabPanel value={value} index={2}>
         <Phi4Analysis documentText={documentText} />
