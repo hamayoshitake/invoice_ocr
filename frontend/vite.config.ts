@@ -25,9 +25,13 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      external: (id) => {
-        // Only externalize hoist-non-react-statics, but include @emotion/react in bundle
-        return id.includes('hoist-non-react-statics');
+      // Remove any external dependencies - bundle everything
+      external: [],
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          emotion: ['@emotion/react', '@emotion/styled']
+        }
       },
       onwarn(warning, warn) {
         // Suppress all export-related warnings
