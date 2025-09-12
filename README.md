@@ -221,13 +221,6 @@ invoice-ocr-app/
 - `GET /key` - APIキー生成
 - `GET /health` - ヘルスチェック
 
-## 📊 テスト対象ファイル
-
-プロジェクトには以下のテスト用PDFファイルが含まれています：
-
-- `functions/test_data/マネーフォード_1.pdf`
-- `functions/test_data/マネーフォード_2.pdf`
-- `functions/test_data/lt_サンプル1.pdf`
 
 ## 🐛 トラブルシューティング
 
