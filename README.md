@@ -6,9 +6,10 @@
 
 ## 🌐 デモサイト
 
-**https://invoice-ocr-app-668f6.web.app/invoice/csv**
+**<https://invoice-ocr-app-668f6.web.app/invoice/csv>**
 
 ### 実行可能な機能
+
 - **請求書CSV出力**: 解析結果をCSVファイルでダウンロード
 - **請求書OCRタブ（Document AI）**: Google Document AIを使用した請求書解析
 
@@ -244,7 +245,6 @@ invoice-ocr-app/
 3. **Playwrightテストエラー**
    - ブラウザがインストールされているか確認: `npx playwright install`
    - テストタイムアウトの調整
-
 
 ## 📞 サポート
 
