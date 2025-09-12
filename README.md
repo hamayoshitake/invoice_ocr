@@ -43,19 +43,17 @@
 - **Firebase Functions** (サーバーレス関数)
 - **Node.js 20**
 - **TypeScript**
-- **Express.js**
+- **Firebase Admin SDK**
 
 ### AI・API
 
-- **Azure Document Intelligence API**
-- **Google Document AI API**
-- **OpenAI API** (Phi4モデル)
-- **Anthropic Claude API**
+- **Google Document AI API** (メインOCR機能)
+- **Phi4 Analysis** (独自解析機能)
+- **Azure Document Intelligence API** (一時的に無効化中)
 
 ### テスト
 
 - **Playwright** (E2Eテスト)
-- **Jest** (ユニットテスト)
 
 ### インフラ
 
@@ -107,8 +105,6 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 VITE_FIREBASE_APP_ID=your_app_id
 
 # functions/.env
-AZURE_DOCUMENT_INTELLIGENCE_KEY=your_azure_key
-AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT=your_azure_endpoint
 GOOGLE_CLOUD_PROJECT_ID=your_gcp_project_id
 OPENAI_API_KEY=your_openai_key
 ANTHROPIC_API_KEY=your_anthropic_key
@@ -171,8 +167,8 @@ npx playwright test
 ### 特定のテストファイルの実行
 
 ```bash
-# Document Intelligence テスト
-npx playwright test tests/invoice-ocr-document-intelligence.spec.ts
+# CSVダウンロード機能テスト
+npx playwright test tests/csv-download.spec.ts
 
 # Document AI テスト
 npx playwright test tests/invoice-ocr-document-ai.spec.ts
@@ -215,14 +211,15 @@ invoice-ocr-app/
 
 ### 請求書解析API
 
-- `POST /invoice/document-intelligence/analyze` - Document Intelligence解析
-- `POST /invoice/document-ai/analyze` - Document AI解析
+- `POST /invoice/document-ai/analyze` - Document AI解析 (Google)
 - `POST /invoice/phi4/analyze` - Phi4解析
+- `POST /invoice/document-intelligence/analyze` - Document Intelligence解析 (一時的に無効化中)
 
 ### データ取得API
 
-- `GET /invoice/data/:id` - 請求書データ取得
-- `GET /invoice/csv/:id` - CSVダウンロード
+- `GET /csv/download` - CSVダウンロード
+- `GET /key` - APIキー生成
+- `GET /health` - ヘルスチェック
 
 ## 📊 テスト対象ファイル
 
